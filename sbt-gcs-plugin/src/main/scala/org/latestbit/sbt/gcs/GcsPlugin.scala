@@ -15,12 +15,12 @@ object GcsPlugin extends AutoPlugin {
   )
 
   private val gcsPluginTaskInits = Seq(
-    gcsPublisher := Def.task {
-      implicit val logger: Logger = streams.value.log
+    gcsPublisher := {
+      implicit val logger: Logger = Keys.sLog.value
       new org.latestbit.sbt.gcs.GcsPublisher(
-        GcsStorageConnector.create((gcsCredentialsFile in thisProject).value.map(_.toPath))
+        GcsStorageConnector.create(gcsCredentialsFile.value.map(_.toPath))
       )
-    }.value
+    }
   )
 
   override def projectSettings: Seq[Def.Setting[_]] = gcsPluginDefaultSettings ++ gcsPluginTaskInits ++ super.projectSettings ++

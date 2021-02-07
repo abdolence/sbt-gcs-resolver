@@ -12,7 +12,7 @@ licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html
 
 val sbtPluginScalaVersion = "2.12.12"
 
-libraryDependencies ++= Vector(
+libraryDependencies ++= Seq(
   "org.scala-lang" % "scala-library" % scalaVersion.value,
   "org.scala-lang" % "scala-reflect" % scalaVersion.value,
   "org.scala-lang" % "scala-compiler" % scalaVersion.value,
@@ -22,7 +22,7 @@ libraryDependencies ++= Vector(
 
 sbtPlugin := true
 
-crossSbtVersions := Vector("1.4.6")
+crossSbtVersions := Seq("1.4.6")
 
 scalaVersion := (CrossVersion partialVersion (sbtVersion in pluginCrossBuild).value match {
   case Some((1, _))  => sbtPluginScalaVersion

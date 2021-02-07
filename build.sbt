@@ -20,13 +20,25 @@ ThisBuild / scalacOptions ++= Seq(
 	"-unchecked"
 )
 
-lazy val sbtGcsPlayground = project
-	.in(file("playground"))
+lazy val sbtGcsPlaygroundToPublish = project
+	.in(file("playground-publish"))
 	.settings(
-		name := "sbt-gcs-plugin-playground",
+		name := "sbt-gcs-plugin-playground-publish",
+		version := "0.0.1",
 		crossScalaVersions := Nil,
 		publishTo := Some(gcsPublisher.value.forBucket("private-artifacts", GcsPublishFilePolicy.InheritedFromBucket))
 	)
+
+lazy val sbtGcsPlaygroundToResolve = project
+	.in(file("playground-resolve"))
+	.settings(
+		name := "sbt-gcs-plugin-playground-resolve",
+		crossScalaVersions := Nil,
+		resolvers += gcsPublisher.value.forBucket("private-artifacts"),
+		libraryDependencies ++= Seq(
+			"org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.1"
+		)
+)
 
 lazy val plugin = project
 	.in(file("sbt-gcs-plugin"))
@@ -40,4 +52,4 @@ lazy val sbtGcsRoot = project
 		publishLocal := {},
 		publishArtifact := false
 	)
-	.aggregate(sbtGcsPlayground)
+	.aggregate(sbtGcsPlaygroundToPublish)
