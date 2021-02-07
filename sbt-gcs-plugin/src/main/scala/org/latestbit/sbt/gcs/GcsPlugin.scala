@@ -16,15 +16,26 @@ object GcsPlugin extends AutoPlugin {
 
   private val gcsPluginTaskInits = Seq(
     gcsPublisher := {
-      implicit val logger: Logger = Keys.sLog.value
+      implicit val logger: Logger         = Keys.sLog.value
+      implicit val projectRef: ProjectRef = thisProjectRef.value
+
       new org.latestbit.sbt.gcs.GcsPublisher(
-        GcsStorageConnector.create(gcsCredentialsFile.value.map(_.toPath), thisProjectRef.value )
+        GcsStorageConnector.create( gcsCredentialsFile.value.map( _.toPath ) )
       )
+    },
+    onLoad in Global := ( onLoad in Global ).value.andThen { state =>
+      implicit val logger: Logger         = state.log
+      implicit val projectRef: ProjectRef = thisProjectRef.value
+      val gcsStorage                      = GcsStorageConnector.create( gcsCredentialsFile.value.map( _.toPath ) )
+
+      GcsUrlHandlerFactory.install( gcsStorage )
+      state
     }
   )
 
-  override def projectSettings: Seq[Def.Setting[_]] = gcsPluginDefaultSettings ++ gcsPluginTaskInits ++ super.projectSettings ++
-    Seq(
-      publishMavenStyle := false
-    )
+  override def projectSettings: Seq[Def.Setting[_]] =
+    gcsPluginDefaultSettings ++
+      gcsPluginTaskInits ++
+      super.projectSettings
+
 }

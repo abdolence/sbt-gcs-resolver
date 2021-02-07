@@ -34,7 +34,7 @@ lazy val sbtGcsPlaygroundToResolve = project
 	.settings(
 		name := "sbt-gcs-plugin-playground-resolve",
 		crossScalaVersions := Nil,
-		resolvers += gcsPublisher.value.forBucket("private-artifacts"),
+		resolvers += "Custom Releases" at "gcs://private-artifacts",
 		libraryDependencies ++= Seq(
 			"org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.1"
 		)
