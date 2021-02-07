@@ -1,6 +1,6 @@
 import org.latestbit.sbt.gcs.GcsPublishFilePolicy
 
-ThisBuild / version := "1.0.0"
+ThisBuild / version := "1.0.1"
 
 ThisBuild / organization := "org.latestbit"
 
@@ -26,7 +26,8 @@ lazy val sbtGcsPlaygroundToPublish = project
 		name := "sbt-gcs-plugin-playground-publish",
 		version := "0.0.1",
 		crossScalaVersions := Nil,
-		publishTo := Some(gcsPublisher.value.forBucket("private-artifacts", GcsPublishFilePolicy.InheritedFromBucket))
+		gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket,
+		publishTo := Some(gcsPublisher.value.toBucket("private-artifacts"))
 	)
 
 lazy val sbtGcsPlaygroundToResolve = project
