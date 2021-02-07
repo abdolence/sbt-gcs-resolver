@@ -16,7 +16,7 @@ sbt v1.4+ (I haven't tested this with previous versions)
 Put this inside your `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.0.1")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.1.0")
 ```
 
 ### Publishing artifacts to GCS
@@ -28,7 +28,7 @@ publishTo := Some(gcsPublisher.value.toBucket("<your-bucket-name>"))
 ### Resolving artifacts from GCS
 
 ```scala
-resolvers += "My GCS artifacts" at "gcs://<your-bucket-name>"
+resolvers += "My GCS artifacts" at "gs://<your-bucket-name>"
 ```
 
 ## Configuration
@@ -36,7 +36,7 @@ resolvers += "My GCS artifacts" at "gcs://<your-bucket-name>"
 ### Google Cloud credentials file configuration
 
 ```
-gcsCredentialsFile := new File("/tmp...")
+gcsCredentialsFile := Some(new File("/tmp..."))
 ```
 By default, it uses application default, which isn't recommended by Google.
 

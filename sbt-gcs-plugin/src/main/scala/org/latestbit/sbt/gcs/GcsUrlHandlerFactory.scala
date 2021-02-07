@@ -28,14 +28,14 @@ object GcsUrlHandlerFactory {
    */
   def install( gcsStorage: Storage )( implicit logger: Logger, projectRef: ProjectRef ) = {
     try {
-      new URL( "gcs://example.com" )
-      logger.debug( s"The gcs:// URLStreamHandler is already installed for ${projectRef}" )
+      new URL( "gs://example.com" )
+      logger.debug( s"The gs:// URLStreamHandler is already installed for ${projectRef}" )
     } catch {
       // This means we haven't installed the handler, so install it
       case _: java.net.MalformedURLException =>
-        logger.info( s"Installing gcs:// URLStreamHandler for ${projectRef}" )
+        logger.info( s"Installing gs:// URLStreamHandler for ${projectRef}" )
         URL.setURLStreamHandlerFactory {
-          case "gcs" => new GcsUrlHandler( gcsStorage )
+          case "gs" => new GcsUrlHandler( gcsStorage )
           case _     => null
         }
     }

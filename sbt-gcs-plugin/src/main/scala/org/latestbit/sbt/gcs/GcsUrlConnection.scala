@@ -15,14 +15,14 @@
  */
 package org.latestbit.sbt.gcs
 
-import com.google.cloud.storage.{ Blob, BlobId, Bucket, Storage }
+import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
 import sbt.Logger
 
-import java.io.{ IOException, InputStream }
-import java.net.{ URL, URLConnection }
+import java.io.{IOException, InputStream}
+import java.net.{HttpURLConnection, URL, URLConnection}
 import java.nio.channels.Channels
 
-class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends URLConnection( url ) {
+class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends HttpURLConnection( url ) {
   private val bucketName             = url.getHost
   private val blobId                 = BlobId.of( bucketName, url.getPath.drop( 1 ) )
   private var bucket: Option[Bucket] = None
@@ -40,8 +40,12 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
             blob = Some( gcsBlob )
             logger.info( s"Found GCS artifact at url: ${url}. BlobId: ${blobId}" )
             connected = true
+            responseCode = 200
           }
-          case _ =>
+          case _ => {
+            responseCode = 404
+            responseMessage = s"Unable to find a file in the bucket: ${bucketName}: ${blobId}"
+          }
         }
       }
       case _ => {
@@ -55,9 +59,13 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
     if (!connected)
       connect()
     blob
-      .map( b => Channels.newInputStream( b.reader() ) )
-      .getOrElse(
-        throw new IllegalStateException( s"Trying to read empty resource at: ${blobId}" )
-      )
+      .map(b => Channels.newInputStream(b.reader()))
+      .orNull
   }
+
+  override def disconnect(): Unit = {
+    connected = false
+  }
+
+  override def usingProxy(): Boolean = false
 }
