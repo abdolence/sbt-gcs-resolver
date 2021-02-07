@@ -74,4 +74,5 @@ metals.sbt
 **/.bloop/**
 project/project/**
 
-.bsp/**
+.bsp
+
