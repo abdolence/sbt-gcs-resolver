@@ -18,7 +18,7 @@ object GcsPlugin extends AutoPlugin {
     gcsPublisher := {
       implicit val logger: Logger = Keys.sLog.value
       new org.latestbit.sbt.gcs.GcsPublisher(
-        GcsStorageConnector.create(gcsCredentialsFile.value.map(_.toPath))
+        GcsStorageConnector.create(gcsCredentialsFile.value.map(_.toPath), thisProjectRef.value )
       )
     }
   )
