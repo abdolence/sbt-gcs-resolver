@@ -22,7 +22,7 @@ addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.1.0")
 ### Publishing artifacts to GCS
 
 ```scala
-publishTo := Some(gcsPublisher.value.toBucket("<your-bucket-name>"))
+publishTo := Some("My GCS artifacts" at "gs://<your-bucket-name>")
 ```
 
 ### Resolving artifacts from GCS

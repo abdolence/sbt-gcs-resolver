@@ -16,7 +16,8 @@
 package org.latestbit.sbt.gcs
 
 import com.google.cloud.storage.Storage
-import sbt.{Logger, ProjectRef}
+import org.apache.ivy.util.url.{ URLHandlerDispatcher, URLHandlerRegistry }
+import sbt.{ Logger, ProjectRef }
 
 import java.net._
 
@@ -26,19 +27,37 @@ object GcsUrlHandlerFactory {
    * To install if it isn't already installed gcs:// URLs handler
    * without throwing a java.net.MalformedURLException.
    */
-  def install( gcsStorage: Storage )( implicit logger: Logger, projectRef: ProjectRef ) = {
+  def install( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit
+      logger: Logger,
+      projectRef: ProjectRef
+  ) = {
+
+    // Install gs:// handler for JDK
     try {
       new URL( "gs://example.com" )
       logger.debug( s"The gs:// URLStreamHandler is already installed for ${projectRef}" )
     } catch {
-      // This means we haven't installed the handler, so install it
       case _: java.net.MalformedURLException =>
         logger.info( s"Installing gs:// URLStreamHandler for ${projectRef}" )
         URL.setURLStreamHandlerFactory {
           case "gs" => new GcsUrlHandler( gcsStorage )
-          case _     => null
+          case _    => null
         }
     }
+
+    // Install gs:// handler for ivy
+    val dispatcher: URLHandlerDispatcher = URLHandlerRegistry.getDefault match {
+      case existingUrlHandlerDispatcher: URLHandlerDispatcher => existingUrlHandlerDispatcher
+      case otherKindOfDispatcher =>
+        logger.info( "Setting up Ivy URLHandlerDispatcher to handle gs://" )
+        val dispatcher: URLHandlerDispatcher = new URLHandlerDispatcher()
+        dispatcher.setDefault( otherKindOfDispatcher )
+        URLHandlerRegistry.setDefault( dispatcher )
+        dispatcher
+    }
+
+    // Register (or replace) the s3 handler
+    dispatcher.setDownloader( "gs", new GcsIvyUrlHandler( gcsStorage, gcsPublishFilePolicy ) )
   }
 
 }

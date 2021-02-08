@@ -44,7 +44,7 @@ object GcsPlugin extends AutoPlugin {
       implicit val projectRef: ProjectRef = thisProjectRef.value
       val gcsStorage                      = GcsStorageConnector.create( gcsCredentialsFile.value.map( _.toPath ) )
 
-      GcsUrlHandlerFactory.install( gcsStorage )
+      GcsUrlHandlerFactory.install( gcsStorage, gcsPublishFilePolicy.value )
       state
     }
   )

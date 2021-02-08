@@ -17,7 +17,7 @@ package org.latestbit.sbt.gcs
 
 import com.google.cloud.storage.Storage
 import org.apache.ivy.core.module.descriptor.Artifact
-import org.apache.ivy.plugins.repository.{AbstractRepository, Resource}
+import org.apache.ivy.plugins.repository.{ AbstractRepository, Resource }
 import sbt.Logger
 
 import java.io.File

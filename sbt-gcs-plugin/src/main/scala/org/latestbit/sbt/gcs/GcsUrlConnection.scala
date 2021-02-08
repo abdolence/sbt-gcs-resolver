@@ -15,11 +15,11 @@
  */
 package org.latestbit.sbt.gcs
 
-import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
+import com.google.cloud.storage.{ Blob, BlobId, Bucket, Storage }
 import sbt.Logger
 
-import java.io.{IOException, InputStream}
-import java.net.{HttpURLConnection, URL}
+import java.io.{ IOException, InputStream }
+import java.net.{ HttpURLConnection, URL }
 import java.nio.channels.Channels
 
 class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends HttpURLConnection( url ) {
@@ -59,7 +59,7 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
     if (!connected)
       connect()
     blob
-      .map(b => Channels.newInputStream(b.reader()))
+      .map( b => Channels.newInputStream( b.reader() ) )
       .orNull
   }
 

@@ -1,6 +1,6 @@
 import org.latestbit.sbt.gcs.GcsPublishFilePolicy
 
-ThisBuild / version := "1.0.1"
+ThisBuild / version := "1.2.0"
 
 ThisBuild / organization := "org.latestbit"
 
@@ -24,10 +24,10 @@ lazy val sbtGcsPlaygroundToPublish = project
 	.in(file("playground-publish"))
 	.settings(
 		name := "sbt-gcs-plugin-playground-publish",
-		version := "0.0.1",
+		version := "0.0.2",
 		crossScalaVersions := Nil,
 		gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket,
-		publishTo := Some(gcsPublisher.value.toBucket("private-artifacts"))
+		publishTo := Some("Custom Releases" at "gs://private-artifacts")
 	)
 
 lazy val sbtGcsPlaygroundToResolve = project
@@ -35,9 +35,9 @@ lazy val sbtGcsPlaygroundToResolve = project
 	.settings(
 		name := "sbt-gcs-plugin-playground-resolve",
 		crossScalaVersions := Nil,
-		resolvers := Seq("Custom Releases" at "gs://private-artifacts") ++ resolvers.value,
+		resolvers += "Custom Releases" at "gs://private-artifacts",
 		libraryDependencies ++= Seq(
-			"org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.1"
+			"org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.2"
 		)
 )
 

@@ -16,10 +16,10 @@
 package org.latestbit.sbt.gcs
 
 import com.google.cloud.storage.Bucket.BlobWriteOption
-import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
+import com.google.cloud.storage.{ Blob, BlobId, Bucket, Storage }
 import org.apache.ivy.plugins.repository.Resource
 
-import java.io.{File, FileInputStream, InputStream}
+import java.io.{ File, FileInputStream, InputStream }
 import java.nio.channels.Channels
 import java.nio.file.Path
 
@@ -38,9 +38,7 @@ case class GcsRepositoryResource( gcsStorage: Storage, sourceBlobName: String, b
 
   override def openStream(): InputStream = blob
     .map( b => Channels.newInputStream( b.reader() ) )
-    .getOrElse(
-      throw new IllegalStateException( s"Trying to read empty resource at: ${sourceBlobName}" )
-    )
+    .orNull
 
   def download( path: Path ): Unit = {
     blob.foreach( _.downloadTo( path ) )
