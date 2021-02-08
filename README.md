@@ -36,9 +36,14 @@ resolvers += "My GCS artifacts" at "gs://<your-bucket-name>"
 ### Google Cloud credentials file configuration
 
 ```
-gcsCredentialsFile := Some(new File("/tmp..."))
+gcsCredentialsFile := Some(new File("<your-account-file>"))
 ```
 By default, it uses application default, which isn't recommended by Google.
+Another way is doing this, is using environment variable:
+
+```bash
+export GOOGLE_APPLICATION_CREDENTIALS=<your-account-file>
+```
 
 ### Configure publish access level:
 ```
