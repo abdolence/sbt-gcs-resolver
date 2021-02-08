@@ -1,11 +1,12 @@
-package org.latestbit.sbt.gcs
+package org.latestbit.sbt.gcs.gs
 
 import com.google.cloud.storage.Storage
 import org.apache.ivy.util.url.URLHandler
-import org.apache.ivy.util.{ CopyProgressEvent, CopyProgressListener }
+import org.apache.ivy.util.{CopyProgressEvent, CopyProgressListener}
+import org.latestbit.sbt.gcs.GcsPublishFilePolicy
 import sbt.Logger
 
-import java.io.{ File, InputStream }
+import java.io.{File, InputStream}
 import java.net.URL
 
 class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit logger: Logger )

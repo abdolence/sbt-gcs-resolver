@@ -15,8 +15,12 @@
  */
 package org.latestbit.sbt.gcs
 
+import com.google.auth.oauth2.GoogleCredentials
 import sbt.Keys._
 import sbt._
+
+import java.io.FileInputStream
+import java.nio.file.Path
 
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements
@@ -33,9 +37,9 @@ object GcsPlugin extends AutoPlugin {
     onLoad in Global := ( onLoad in Global ).value.andThen { state =>
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
-      val gcsStorage                      = GcsStorageConnector.create( gcsCredentialsFile.value.map( _.toPath ) )
 
-      GcsUrlHandlerFactory.install( gcsStorage, gcsPublishFilePolicy.value )
+      val googleCredentials = loadGoogleCredentials(gcsCredentialsFile.value.map( _.toPath ))
+      GcsUrlHandlerFactory.install(googleCredentials , gcsPublishFilePolicy.value )
       state
     }
   )
@@ -45,4 +49,16 @@ object GcsPlugin extends AutoPlugin {
       gcsPluginTaskInits ++
       super.projectSettings
 
+  private def loadGoogleCredentials(gcsCredentialsFilePath: Option[Path])(implicit logger: Logger, projectRef: ProjectRef): GoogleCredentials = {
+    gcsCredentialsFilePath
+      .map { path =>
+        logger.info( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
+        GoogleCredentials.fromStream( new FileInputStream( path.toFile ) )
+      }
+      .getOrElse {
+        logger.info( s"Loading default Google credentials for ${projectRef.toString}" )
+        GoogleCredentials.getApplicationDefault()
+      }
+
+  }
 }

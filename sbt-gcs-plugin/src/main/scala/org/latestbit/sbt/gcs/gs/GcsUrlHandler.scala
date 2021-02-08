@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.latestbit.sbt.gcs
+package org.latestbit.sbt.gcs.gs
 
 import com.google.cloud.storage.Storage
 import sbt.Logger
 
-import java.net.{ URL, URLConnection, URLStreamHandler }
+import java.net.{URL, URLConnection, URLStreamHandler}
 
 class GcsUrlHandler( gcsStorage: Storage )( implicit logger: Logger ) extends URLStreamHandler {
 

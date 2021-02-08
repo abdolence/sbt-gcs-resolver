@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.latestbit.sbt.gcs
+package org.latestbit.sbt.gcs.gs
 
-import com.google.cloud.storage.{ Blob, BlobId, Bucket, Storage }
+import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
 import sbt.Logger
 
-import java.io.{ IOException, InputStream }
-import java.net.{ HttpURLConnection, URL }
+import java.io.{IOException, InputStream}
+import java.net.{HttpURLConnection, URL}
 import java.nio.channels.Channels
 
 class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends HttpURLConnection( url ) {

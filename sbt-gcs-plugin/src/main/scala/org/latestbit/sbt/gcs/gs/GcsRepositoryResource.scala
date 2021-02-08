@@ -13,13 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.latestbit.sbt.gcs
+package org.latestbit.sbt.gcs.gs
 
 import com.google.cloud.storage.Bucket.BlobWriteOption
-import com.google.cloud.storage.{ Blob, BlobId, Bucket, Storage }
+import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
 import org.apache.ivy.plugins.repository.Resource
+import org.latestbit.sbt.gcs.GcsPublishFilePolicy
 
-import java.io.{ File, FileInputStream, InputStream }
+import java.io.{File, FileInputStream, InputStream}
 import java.nio.channels.Channels
 import java.nio.file.Path
 
