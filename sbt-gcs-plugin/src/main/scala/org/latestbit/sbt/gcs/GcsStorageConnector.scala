@@ -29,11 +29,11 @@ object GcsStorageConnector {
     val credentials: GoogleCredentials =
       gcsCredentialsFilePath
         .map { path =>
-          logger.info( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${project.toString}" )
+          logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${project.toString}" )
           GoogleCredentials.fromStream( new FileInputStream( path.toFile ) )
         }
         .getOrElse {
-          logger.info( s"Loading default Google credentials for ${project.toString}" )
+          logger.debug( s"Loading default Google credentials for ${project.toString}" )
           GoogleCredentials.getApplicationDefault()
         }
 
