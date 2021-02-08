@@ -15,8 +15,8 @@
  */
 package org.latestbit.sbt.gcs
 
-import sbt._
 import sbt.Keys._
+import sbt._
 
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements

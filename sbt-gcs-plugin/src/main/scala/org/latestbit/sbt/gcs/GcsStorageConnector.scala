@@ -16,8 +16,8 @@
 package org.latestbit.sbt.gcs
 
 import com.google.auth.oauth2.GoogleCredentials
-import com.google.cloud.storage.{ Storage, StorageOptions }
-import sbt.{ Logger, ProjectRef }
+import com.google.cloud.storage.{Storage, StorageOptions}
+import sbt.{Logger, ProjectRef}
 
 import java.io.FileInputStream
 import java.nio.file.Path

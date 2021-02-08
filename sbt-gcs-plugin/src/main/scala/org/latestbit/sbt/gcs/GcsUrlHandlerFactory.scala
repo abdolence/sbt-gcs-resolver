@@ -16,7 +16,7 @@
 package org.latestbit.sbt.gcs
 
 import com.google.cloud.storage.Storage
-import sbt.{ Logger, ProjectRef }
+import sbt.{Logger, ProjectRef}
 
 import java.net._
 

@@ -15,14 +15,13 @@
  */
 package org.latestbit.sbt.gcs
 
-import com.google.cloud.storage.{ BlobId, Storage }
+import com.google.cloud.storage.Storage
 import org.apache.ivy.core.module.descriptor.Artifact
-import org.apache.ivy.plugins.repository.{ AbstractRepository, Resource }
+import org.apache.ivy.plugins.repository.{AbstractRepository, Resource}
 import sbt.Logger
 
 import java.io.File
 import java.util
-
 import scala.collection.JavaConverters._
 
 class GcsRepository( gcsStorage: Storage, bucketName: String, publishPolicy: GcsPublishFilePolicy )( implicit

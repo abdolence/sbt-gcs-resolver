@@ -19,7 +19,7 @@ import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
 import sbt.Logger
 
 import java.io.{IOException, InputStream}
-import java.net.{HttpURLConnection, URL, URLConnection}
+import java.net.{HttpURLConnection, URL}
 import java.nio.channels.Channels
 
 class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends HttpURLConnection( url ) {
@@ -64,6 +64,8 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
   }
 
   override def disconnect(): Unit = {
+    bucket = None
+    blob = None
     connected = false
   }
 
