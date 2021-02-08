@@ -1,5 +1,5 @@
 # SBT plugin for Google Cloud Storage (GCS) artifact resolving/publishing
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.latestbit/sbt-gcs-plugin_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.latestbit/sbt-gcs-plugin_2.12/)
+[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.latestbit/sbt-gcs-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.latestbit/sbt-gcs-plugin/)
 
 Features:
 - Simple to use
