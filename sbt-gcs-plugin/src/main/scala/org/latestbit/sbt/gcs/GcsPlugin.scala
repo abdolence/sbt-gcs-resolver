@@ -30,15 +30,6 @@ object GcsPlugin extends AutoPlugin {
   )
 
   private val gcsPluginTaskInits = Seq(
-    gcsPublisher := {
-      implicit val logger: Logger         = Keys.sLog.value
-      implicit val projectRef: ProjectRef = thisProjectRef.value
-
-      new org.latestbit.sbt.gcs.GcsPublisher(
-        GcsStorageConnector.create( gcsCredentialsFile.value.map( _.toPath ) ),
-        gcsPublishFilePolicy.value
-      )
-    },
     onLoad in Global := ( onLoad in Global ).value.andThen { state =>
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value

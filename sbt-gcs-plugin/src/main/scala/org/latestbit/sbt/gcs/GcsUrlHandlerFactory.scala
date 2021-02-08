@@ -56,7 +56,6 @@ object GcsUrlHandlerFactory {
         dispatcher
     }
 
-    // Register (or replace) the s3 handler
     dispatcher.setDownloader( "gs", new GcsIvyUrlHandler( gcsStorage, gcsPublishFilePolicy ) )
   }
 
