@@ -16,7 +16,7 @@ sbt v1.4+ (I haven't tested this with previous versions)
 Put this inside your `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.1.0")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.2.0")
 ```
 
 ### Publishing artifacts to GCS
