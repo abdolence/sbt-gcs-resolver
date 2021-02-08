@@ -54,11 +54,11 @@ object GcsPlugin extends AutoPlugin {
   )( implicit logger: Logger, projectRef: ProjectRef ): GoogleCredentials = {
     gcsCredentialsFilePath
       .map { path =>
-        logger.info( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
+        logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
         GoogleCredentials.fromStream( new FileInputStream( path.toFile ) )
       }
       .getOrElse {
-        logger.info( s"Loading default Google credentials for ${projectRef.toString}" )
+        logger.debug( s"Loading default Google credentials for ${projectRef.toString}" )
         GoogleCredentials.getApplicationDefault()
       }
 
