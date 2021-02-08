@@ -15,16 +15,17 @@
  */
 package org.latestbit.sbt.gcs.gs
 
-import com.google.cloud.storage.{Blob, BlobId, Bucket, Storage}
+import com.google.cloud.storage.{ Blob, BlobId, Bucket, Storage }
 import sbt.Logger
 
-import java.io.{IOException, InputStream}
-import java.net.{HttpURLConnection, URL}
+import java.io.{ IOException, InputStream }
+import java.net.{ HttpURLConnection, URL }
 import java.nio.channels.Channels
 
 class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends HttpURLConnection( url ) {
-  private val bucketName             = url.getHost
-  private val blobId                 = BlobId.of( bucketName, url.getPath.drop( 1 ) )
+  private val bucketName = url.getHost
+  private val blobId     = GcsUrlConnection.toBlobId( url )
+
   private var bucket: Option[Bucket] = None
   private var blob: Option[Blob]     = None
 
@@ -70,4 +71,12 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
   }
 
   override def usingProxy(): Boolean = false
+}
+
+object GcsUrlConnection {
+
+  def toBlobId( url: URL ): BlobId = {
+    val bucketName = url.getHost
+    BlobId.of( bucketName, url.getPath.drop( 1 ) )
+  }
 }

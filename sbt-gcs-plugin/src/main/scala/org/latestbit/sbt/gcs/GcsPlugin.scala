@@ -38,8 +38,8 @@ object GcsPlugin extends AutoPlugin {
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
 
-      val googleCredentials = loadGoogleCredentials(gcsCredentialsFile.value.map( _.toPath ))
-      GcsUrlHandlerFactory.install(googleCredentials , gcsPublishFilePolicy.value )
+      val googleCredentials = loadGoogleCredentials( gcsCredentialsFile.value.map( _.toPath ) )
+      GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
       state
     }
   )
@@ -49,7 +49,9 @@ object GcsPlugin extends AutoPlugin {
       gcsPluginTaskInits ++
       super.projectSettings
 
-  private def loadGoogleCredentials(gcsCredentialsFilePath: Option[Path])(implicit logger: Logger, projectRef: ProjectRef): GoogleCredentials = {
+  private def loadGoogleCredentials(
+      gcsCredentialsFilePath: Option[Path]
+  )( implicit logger: Logger, projectRef: ProjectRef ): GoogleCredentials = {
     gcsCredentialsFilePath
       .map { path =>
         logger.info( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )

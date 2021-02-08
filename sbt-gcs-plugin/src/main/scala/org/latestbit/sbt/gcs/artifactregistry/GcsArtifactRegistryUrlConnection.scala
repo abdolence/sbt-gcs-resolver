@@ -15,24 +15,25 @@
  */
 package org.latestbit.sbt.gcs.artifactregistry
 
-import com.google.api.client.http.{GenericUrl, HttpRequestFactory, HttpResponseException}
+import com.google.api.client.http.{ GenericUrl, HttpRequestFactory, HttpResponseException }
 import sbt.Logger
 
 import java.io.InputStream
-import java.net.{HttpURLConnection, URL}
+import java.net.{ HttpURLConnection, URL }
 
-class GcsArtifactRegistryUrlConnection(googleHttpRequestFactory: HttpRequestFactory, url: URL)(implicit logger: Logger) extends HttpURLConnection(url) {
-  private final val genericUrl = GcsArtifactRegistryGenericUrlFactory.createFromUrl(url)
+class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
+    logger: Logger
+) extends HttpURLConnection( url ) {
+  private final val genericUrl = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
 
-  logger.info(s"Checking GCS artifact at url: ${url}.")
+  logger.info( s"Checking GCS artifact at url: ${url}." )
 
   override def connect(): Unit = {
     connected = false
     try {
-      val httpRequest = googleHttpRequestFactory.buildHeadRequest(genericUrl)
+      val httpRequest = googleHttpRequestFactory.buildHeadRequest( genericUrl )
       connected = httpRequest.execute().isSuccessStatusCode
-    }
-    catch {
+    } catch {
       case ex: HttpResponseException => {
         responseCode = ex.getStatusCode
         responseMessage = ex.getStatusMessage
@@ -45,11 +46,10 @@ class GcsArtifactRegistryUrlConnection(googleHttpRequestFactory: HttpRequestFact
       connect()
     }
     try {
-      val httpRequest = googleHttpRequestFactory.buildGetRequest(genericUrl)
+      val httpRequest  = googleHttpRequestFactory.buildGetRequest( genericUrl )
       val httpResponse = httpRequest.execute()
       httpResponse.getContent
-    }
-    catch {
+    } catch {
       case ex: HttpResponseException => {
         responseCode = ex.getStatusCode
         responseMessage = ex.getStatusMessage

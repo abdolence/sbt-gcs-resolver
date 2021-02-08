@@ -18,11 +18,12 @@ package org.latestbit.sbt.gcs.artifactregistry
 import com.google.api.client.http.HttpRequestFactory
 import sbt.Logger
 
-import java.net.{URL, URLConnection, URLStreamHandler}
+import java.net.{ URL, URLConnection, URLStreamHandler }
 
-class GcsArtifactRegistryUrlHandler(googleHttpRequestFactory: HttpRequestFactory)(implicit logger: Logger) extends URLStreamHandler {
+class GcsArtifactRegistryUrlHandler( googleHttpRequestFactory: HttpRequestFactory )( implicit logger: Logger )
+    extends URLStreamHandler {
 
-  override def openConnection(url: URL): URLConnection = {
-    new GcsArtifactRegistryUrlConnection(googleHttpRequestFactory, url)
+  override def openConnection( url: URL ): URLConnection = {
+    new GcsArtifactRegistryUrlConnection( googleHttpRequestFactory, url )
   }
 }
