@@ -45,7 +45,7 @@ object GcsUrlHandlerFactory {
     val dispatcher: URLHandlerDispatcher = URLHandlerRegistry.getDefault match {
       case existingUrlHandlerDispatcher: URLHandlerDispatcher => existingUrlHandlerDispatcher
       case otherKindOfDispatcher =>
-        logger.info( "Setting up Ivy URLHandlerDispatcher to handle gs://" )
+        logger.info( "Setting up Ivy URLHandlerDispatcher to handle gs:// and artifactregistry://" )
         val dispatcher: URLHandlerDispatcher = new URLHandlerDispatcher()
         dispatcher.setDefault( otherKindOfDispatcher )
         URLHandlerRegistry.setDefault( dispatcher )
