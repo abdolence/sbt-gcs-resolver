@@ -36,13 +36,13 @@ resolvers += "My GCS artifacts" at "gs://<your-bucket-name>"
 ### Google Artifact Registry publishing
 
 ```scala
-publishTo := Some("My private artifacts" at "artifactregistry://<your-gcs-url>")
+publishTo := Some("My private artifacts" at "artifactregistry://<your-google-artifact-registry-url>")
 ```
 
 ### Google Artifact Registry resolving
 
 ```scala
-resolvers += "My private artifacts" at "artifactregistry://<your-gcs-url>"
+resolvers += "My private artifacts" at "artifactregistry://<your-google-artifact-registry-url>"
 ```
 
 ## Configuration
