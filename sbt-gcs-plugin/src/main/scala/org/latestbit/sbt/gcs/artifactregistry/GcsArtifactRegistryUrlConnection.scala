@@ -26,7 +26,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
 ) extends HttpURLConnection( url ) {
   private final val genericUrl = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
 
-  logger.info( s"Checking GCS artifact at url: ${url}." )
+  logger.info( s"Checking artifact at url: ${url}." )
 
   override def connect(): Unit = {
     connected = false

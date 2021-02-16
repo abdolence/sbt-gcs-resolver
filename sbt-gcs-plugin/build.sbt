@@ -2,7 +2,7 @@ name := "sbt-gcs-plugin"
 
 description := "A SBT resolver and publisher for Google Cloud Storage"
 
-version := "1.3.0"
+version := "1.3.1"
 
 organization := "org.latestbit"
 

@@ -62,7 +62,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: HttpRequestFac
 
   override def upload( src: File, dest: URL, l: CopyProgressListener ): Unit = {
     logger.info(
-      s"Publishing GCS artifact to '${dest}'. Source file name: ${src.getName}."
+      s"Publishing artifact to '${dest}'..."
     )
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )

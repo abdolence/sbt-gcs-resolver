@@ -29,7 +29,7 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
   private var bucket: Option[Bucket] = None
   private var blob: Option[Blob]     = None
 
-  logger.info( s"Checking GCS artifact at url: ${url}. Bucket: $bucketName" )
+  logger.info( s"Checking artifact at url: ${url}. Bucket: $bucketName" )
 
   override def connect(): Unit = {
     connected = false

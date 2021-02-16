@@ -52,7 +52,7 @@ class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFil
     Option( gcsStorage.get( bucketName ) ) match {
       case Some( gcsBucket ) => {
         logger.info(
-          s"Publishing GCS artifact to '${dest}'. Source file name: ${src.getName}."
+          s"Publishing GCS artifact to '${dest}'..."
         )
         val event = new CopyProgressEvent()
         Option( l ).foreach( _.start( event ) )
