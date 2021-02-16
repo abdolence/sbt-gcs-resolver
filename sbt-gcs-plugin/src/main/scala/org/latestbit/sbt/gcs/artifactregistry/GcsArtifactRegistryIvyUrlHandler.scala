@@ -28,14 +28,13 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: HttpRequestFac
 
   override def getURLInfo( url: URL ): URLHandler.URLInfo = {
     val genericUrl   = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
-    val httpRequest  = googleHttpRequestFactory.buildHeadRequest( genericUrl )
+    val httpRequest  = googleHttpRequestFactory.buildHeadRequest( genericUrl ).setThrowExceptionOnExecuteError(false)
     val httpResponse = httpRequest.execute()
     GcsArtifactRegistryIvyUrlInfo(
       available = httpResponse.isSuccessStatusCode,
       contentLength =
-        Option( httpResponse.getHeaders.get( "Content-Length" ) ).map( _.toString.toLong ).getOrElse( 0L ),
-      lastModified = Option( httpResponse.getHeaders.get( "Last-Modified" ) )
-        .map( _.toString )
+        Option( httpResponse.getHeaders.getContentLength).map(_.longValue).getOrElse( 0L ),
+      lastModified = Option( httpResponse.getHeaders.getLastModified )
         .map( dateAsStr => ZonedDateTime.parse( dateAsStr, DateTimeFormatter.RFC_1123_DATE_TIME ) )
         .map( _.toEpochSecond )
         .getOrElse( 0L )
