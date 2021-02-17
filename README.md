@@ -49,12 +49,15 @@ resolvers += "My private artifacts" at "artifactregistry://<your-google-artifact
 
 ### Google Cloud credentials file configuration
 
+Plugin tries to load Google Account in the following order:
+- Specified settings in sbt build
 ```
 googleCredentialsFile := Some(new File("<your-account-file>"))
 ```
-By default, it uses application default, which isn't recommended by Google.
-Another way is doing this, is using environment variable:
-
+  
+- Looking for `gcs-resolver-google-account.json` in `<user-home>/.sbt` directory
+  
+- Default application credentials (gcloud settings) or environment variable:
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS=<your-account-file>
 ```
