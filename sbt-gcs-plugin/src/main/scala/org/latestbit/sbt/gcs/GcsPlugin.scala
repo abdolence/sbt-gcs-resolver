@@ -30,7 +30,7 @@ object GcsPlugin extends AutoPlugin {
 
   private val gcsPluginDefaultSettings = Seq(
     gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket,
-    gcsCredentialsFile := None
+    googleCredentialsFile := None
   )
 
   private val gcsPluginTaskInits = Seq(
@@ -38,7 +38,7 @@ object GcsPlugin extends AutoPlugin {
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
 
-      val googleCredentials = loadGoogleCredentials( gcsCredentialsFile.value.map( _.toPath ) )
+      val googleCredentials = loadGoogleCredentials( googleCredentialsFile.value.map( _.toPath ) )
       GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
       state
     }

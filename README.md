@@ -50,7 +50,7 @@ resolvers += "My private artifacts" at "artifactregistry://<your-google-artifact
 ### Google Cloud credentials file configuration
 
 ```
-gcsCredentialsFile := Some(new File("<your-account-file>"))
+googleCredentialsFile := Some(new File("<your-account-file>"))
 ```
 By default, it uses application default, which isn't recommended by Google.
 Another way is doing this, is using environment variable:

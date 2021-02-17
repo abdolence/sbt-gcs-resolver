@@ -1,6 +1,6 @@
 import org.latestbit.sbt.gcs.GcsPublishFilePolicy
 
-ThisBuild / version := "1.3.1"
+ThisBuild / version := "1.4.0-SNAPSHOT"
 
 ThisBuild / organization := "org.latestbit"
 
