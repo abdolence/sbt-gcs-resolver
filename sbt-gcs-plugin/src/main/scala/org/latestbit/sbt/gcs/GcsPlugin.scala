@@ -53,7 +53,7 @@ object GcsPlugin extends AutoPlugin {
       gcsCredentialsFilePath: Option[Path]
   )( implicit logger: Logger, projectRef: ProjectRef ): GoogleCredentials = {
     gcsCredentialsFilePath
-      .orElse(lookupGoogleCredentialsInSbtDir())
+      .orElse( lookupGoogleCredentialsInSbtDir() )
       .map { path =>
         logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
         GoogleCredentials.fromStream( new FileInputStream( path.toFile ) )
@@ -66,16 +66,14 @@ object GcsPlugin extends AutoPlugin {
   }
 
   private def lookupGoogleCredentialsInSbtDir(): Option[Path] = {
-    val sbtUserRootDir = new File(System.getProperty("user.home"), ".sbt")
-    if ( sbtUserRootDir.isDirectory ) {
-      val googleAccountInSbt = new File(sbtUserRootDir, "gcs-resolver-google-account.json")
-      if(googleAccountInSbt.exists() && googleAccountInSbt.isFile) {
-        Some(googleAccountInSbt.toPath)
-      }
-      else
+    val sbtUserRootDir = new File( System.getProperty( "user.home" ), ".sbt" )
+    if (sbtUserRootDir.isDirectory) {
+      val googleAccountInSbt = new File( sbtUserRootDir, "gcs-resolver-google-account.json" )
+      if (googleAccountInSbt.exists() && googleAccountInSbt.isFile) {
+        Some( googleAccountInSbt.toPath )
+      } else
         None
-    }
-    else
+    } else
       None
   }
 }
