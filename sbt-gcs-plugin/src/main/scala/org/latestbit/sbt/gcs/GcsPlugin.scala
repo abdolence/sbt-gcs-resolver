@@ -21,6 +21,7 @@ import sbt._
 
 import java.io.FileInputStream
 import java.nio.file.Path
+import scala.util.Try
 
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements
@@ -66,14 +67,16 @@ object GcsPlugin extends AutoPlugin {
   }
 
   private def lookupGoogleCredentialsInSbtDir(): Option[Path] = {
-    val sbtUserRootDir = new File( System.getProperty( "user.home" ), ".sbt" )
-    if (sbtUserRootDir.isDirectory) {
-      val googleAccountInSbt = new File( sbtUserRootDir, "gcs-resolver-google-account.json" )
-      if (googleAccountInSbt.exists() && googleAccountInSbt.isFile) {
-        Some( googleAccountInSbt.toPath )
+    Try(Option(System.getProperty( "user.home" ))).toOption.flatten.flatMap { userHomeDir =>
+      val sbtUserRootDir = new File( userHomeDir, ".sbt" )
+      if (sbtUserRootDir.exists() && sbtUserRootDir.isDirectory) {
+        val googleAccountInSbt = new File( sbtUserRootDir, "gcs-resolver-google-account.json" )
+        if (googleAccountInSbt.exists() && googleAccountInSbt.isFile) {
+          Some( googleAccountInSbt.toPath )
+        } else
+          None
       } else
         None
-    } else
-      None
+    }
   }
 }

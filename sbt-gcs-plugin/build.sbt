@@ -2,8 +2,6 @@ name := "sbt-gcs-plugin"
 
 description := "A SBT resolver and publisher for Google Cloud Storage"
 
-version := "1.4.0"
-
 organization := "org.latestbit"
 
 homepage := Some(url("http://latestbit.com"))
@@ -21,6 +19,8 @@ libraryDependencies ++= Seq(
 )
 
 sbtPlugin := true
+
+enablePlugins(GitVersioning)
 
 crossSbtVersions := Seq("1.4.6")
 

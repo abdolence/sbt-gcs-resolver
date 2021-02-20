@@ -18,7 +18,7 @@ sbt v1.4+ (I haven't tested this with previous versions)
 Put this inside your `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.4.0")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.4.1")
 ```
 
 ### GCS publishing
@@ -36,13 +36,13 @@ resolvers += "My GCS artifacts" at "gs://<your-bucket-name>"
 ### Google Artifact Registry publishing
 
 ```scala
-publishTo := Some("My private artifacts" at "artifactregistry://<your-google-artifact-registry-url>")
+publishTo := Some("My private artifacts" at "artifactregistry://<your-artifact-registry-url>")
 ```
 
 ### Google Artifact Registry resolving
 
 ```scala
-resolvers += "My private artifacts" at "artifactregistry://<your-google-artifact-registry-url>"
+resolvers += "My private artifacts" at "artifactregistry://<your-artifact-registry-url>"
 ```
 
 ## Configuration

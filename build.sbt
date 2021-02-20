@@ -1,7 +1,5 @@
 import org.latestbit.sbt.gcs.GcsPublishFilePolicy
 
-ThisBuild / version := "1.4.0"
-
 ThisBuild / organization := "org.latestbit"
 
 ThisBuild / homepage := Some(url("http://latestbit.com"))
@@ -20,9 +18,9 @@ ThisBuild / scalacOptions ++= Seq(
 	"-unchecked"
 )
 
+
 lazy val sbtGcsPlaygroundToPublish = project
-	.in(file("playground-publish"))
-	.settings(
+	.in(file("playground-publish"))	.settings(
 		name := "sbt-gcs-plugin-playground-publish",
 		version := "0.0.3",
 		crossScalaVersions := Nil,
@@ -64,6 +62,7 @@ lazy val sbtGcsArtifactRepositoryPlaygroundToResolve = project
 
 lazy val plugin = project
 	.in(file("sbt-gcs-plugin"))
+	.enablePlugins(GitVersioning)
 
 lazy val sbtGcsRoot = project
 	.in(file("."))
