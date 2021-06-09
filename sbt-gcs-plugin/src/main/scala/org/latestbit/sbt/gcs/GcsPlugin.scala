@@ -22,6 +22,7 @@ import sbt._
 import java.io.FileInputStream
 import java.nio.file.Path
 import scala.util.Try
+import scala.collection.JavaConverters._
 
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements
@@ -38,8 +39,9 @@ object GcsPlugin extends AutoPlugin {
     onLoad in Global := ( onLoad in Global ).value.andThen { state =>
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
-
-      val googleCredentials = loadGoogleCredentials( googleCredentialsFile.value.map( _.toPath ) )
+      val googleCredentials = loadGoogleCredentials(
+        googleCredentialsFile.value.map( _.toPath )
+      )
       GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
       state
     }
@@ -57,11 +59,11 @@ object GcsPlugin extends AutoPlugin {
       .orElse( lookupGoogleCredentialsInSbtDir() )
       .map { path =>
         logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
-        GoogleCredentials.fromStream( new FileInputStream( path.toFile ) )
+        GoogleCredentials.fromStream( new FileInputStream( path.toFile ) ).createScoped(googleCredentialsScopes.asJavaCollection)
       }
       .getOrElse {
         logger.debug( s"Loading default Google credentials for ${projectRef.toString}" )
-        GoogleCredentials.getApplicationDefault()
+        GoogleCredentials.getApplicationDefault().createScoped(googleCredentialsScopes.asJavaCollection)
       }
 
   }
@@ -79,4 +81,9 @@ object GcsPlugin extends AutoPlugin {
         None
     }
   }
+
+  private final val googleCredentialsScopes: Set[String] = Set(
+    "https://www.googleapis.com/auth/cloud-platform",
+    "https://www.googleapis.com/auth/cloud-platform.read-only"
+  )
 }

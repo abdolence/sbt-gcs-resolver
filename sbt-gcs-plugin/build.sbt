@@ -22,11 +22,9 @@ sbtPlugin := true
 
 enablePlugins(GitVersioning)
 
-crossSbtVersions := Seq("1.4.6")
-
-scalaVersion := (CrossVersion partialVersion (sbtVersion in pluginCrossBuild).value match {
+scalaVersion := (CrossVersion partialVersion (pluginCrossBuild / sbtVersion).value match {
   case Some((1, _))  => sbtPluginScalaVersion
-  case _             => sys error s"Unhandled sbt version ${(sbtVersion in pluginCrossBuild).value}"
+  case _             => sys error s"Unhandled sbt version ${(pluginCrossBuild / sbtVersion).value}"
 })
 
 publishMavenStyle := true
