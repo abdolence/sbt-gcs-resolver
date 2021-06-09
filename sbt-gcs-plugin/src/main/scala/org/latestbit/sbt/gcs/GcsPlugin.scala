@@ -59,11 +59,11 @@ object GcsPlugin extends AutoPlugin {
       .orElse( lookupGoogleCredentialsInSbtDir() )
       .map { path =>
         logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
-        GoogleCredentials.fromStream( new FileInputStream( path.toFile ) ).createScoped(googleCredentialsScopes.asJavaCollection)
+        GoogleCredentials.fromStream( new FileInputStream( path.toFile ) ).createScoped(GoogleCredentialsScopes.asJavaCollection)
       }
       .getOrElse {
         logger.debug( s"Loading default Google credentials for ${projectRef.toString}" )
-        GoogleCredentials.getApplicationDefault().createScoped(googleCredentialsScopes.asJavaCollection)
+        GoogleCredentials.getApplicationDefault().createScoped(GoogleCredentialsScopes.asJavaCollection)
       }
 
   }
@@ -82,7 +82,7 @@ object GcsPlugin extends AutoPlugin {
     }
   }
 
-  private final val googleCredentialsScopes: Set[String] = Set(
+  private final val GoogleCredentialsScopes: Set[String] = Set(
     "https://www.googleapis.com/auth/cloud-platform",
     "https://www.googleapis.com/auth/cloud-platform.read-only"
   )
