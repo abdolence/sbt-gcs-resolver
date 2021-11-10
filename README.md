@@ -62,6 +62,17 @@ googleCredentialsFile := Some(new File("<your-account-file>"))
 export GOOGLE_APPLICATION_CREDENTIALS=<your-account-file>
 ```
 
+---------------------------------------------------------------------------------------------
+If you see some errors such as `The Application Default Credentials are not available.` 
+when you start sbt, that means there is no default credentials configured on your machine.
+You can use
+`gcloud auth application-default login` to fix it or specify path to your account file 
+using environment variable `GOOGLE_APPLICATION_CREDENTIALS`.
+
+Follow for details https://developers.google.com/accounts/docs/application-default-credentials.
+
+---------------------------------------------------------------------------------------------
+
 ### Configure publish access level (GCS only):
 ```
 gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket // Default

@@ -21,8 +21,8 @@ import sbt._
 
 import java.io.FileInputStream
 import java.nio.file.Path
-import scala.util.Try
 import scala.collection.JavaConverters._
+import scala.util.{ Failure, Success, Try }
 
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements
@@ -39,11 +39,20 @@ object GcsPlugin extends AutoPlugin {
     onLoad in Global := ( onLoad in Global ).value.andThen { state =>
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
-      val googleCredentials = loadGoogleCredentials(
-        googleCredentialsFile.value.map( _.toPath )
-      )
-      GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
-      state
+      Try {
+        val googleCredentials = loadGoogleCredentials(
+          googleCredentialsFile.value.map( _.toPath )
+        )
+        GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
+      } match {
+        case Success( _ ) => state
+        case Failure( err ) => {
+          logger.err(
+            s"Unable to find/initialise google credentials: ${err}. Publishing/resolving artifacts from GCP is disabled."
+          )
+          state
+        }
+      }
     }
   )
 
@@ -59,17 +68,19 @@ object GcsPlugin extends AutoPlugin {
       .orElse( lookupGoogleCredentialsInSbtDir() )
       .map { path =>
         logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
-        GoogleCredentials.fromStream( new FileInputStream( path.toFile ) ).createScoped(GoogleCredentialsScopes.asJavaCollection)
+        GoogleCredentials
+          .fromStream( new FileInputStream( path.toFile ) )
+          .createScoped( GoogleCredentialsScopes.asJavaCollection )
       }
       .getOrElse {
         logger.debug( s"Loading default Google credentials for ${projectRef.toString}" )
-        GoogleCredentials.getApplicationDefault().createScoped(GoogleCredentialsScopes.asJavaCollection)
+        GoogleCredentials.getApplicationDefault().createScoped( GoogleCredentialsScopes.asJavaCollection )
       }
 
   }
 
   private def lookupGoogleCredentialsInSbtDir(): Option[Path] = {
-    Try(Option(System.getProperty( "user.home" ))).toOption.flatten.flatMap { userHomeDir =>
+    Try( Option( System.getProperty( "user.home" ) ) ).toOption.flatten.flatMap { userHomeDir =>
       val sbtUserRootDir = new File( userHomeDir, ".sbt" )
       if (sbtUserRootDir.exists() && sbtUserRootDir.isDirectory) {
         val googleAccountInSbt = new File( sbtUserRootDir, "gcs-resolver-google-account.json" )
