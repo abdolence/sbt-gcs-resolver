@@ -36,3 +36,13 @@ publishTo := {
   else
     Some( "releases" at nexus + "service/local/staging/deploy/maven2" )
 }
+
+pomExtra := (
+  <developers>
+      <developer>
+        <id>abdulla</id>
+        <name>Abdulla Abdurakhmanov</name>
+        <url>http://abdolence.dev</url>
+      </developer>
+    </developers>
+)
