@@ -36,18 +36,3 @@ publishTo := {
   else
     Some( "releases" at nexus + "service/local/staging/deploy/maven2" )
 }
-
-pomExtra := (
-  <scm>
-    <url>https://github.com/abdolence/sbt-gcs-resolver</url>
-    <connection>scm:git:https://github.com/abdolence/sbt-gcs-resolver</connection>
-    <developerConnection>scm:git:https://github.com/abdolence/sbt-gcs-resolver</developerConnection>
-  </scm>
-    <developers>
-      <developer>
-        <id>abdulla</id>
-        <name>Abdulla Abdurakhmanov</name>
-        <url>http://abdolence.dev</url>
-      </developer>
-    </developers>
-)
