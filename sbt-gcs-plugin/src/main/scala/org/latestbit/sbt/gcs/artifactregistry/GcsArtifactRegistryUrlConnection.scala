@@ -15,7 +15,7 @@
  */
 package org.latestbit.sbt.gcs.artifactregistry
 
-import com.google.api.client.http.{ GenericUrl, HttpRequestFactory, HttpResponseException }
+import com.google.api.client.http.{ HttpRequestFactory, HttpResponseException }
 import sbt.Logger
 
 import java.io.InputStream

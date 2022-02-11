@@ -15,7 +15,7 @@
  */
 package org.latestbit.sbt.gcs.artifactregistry
 
-import com.google.api.client.http.{ GenericUrl, HttpContent, HttpRequestFactory }
+import com.google.api.client.http.{ HttpContent, HttpRequestFactory }
 import org.apache.ivy.util.url.URLHandler
 import org.apache.ivy.util.{ CopyProgressEvent, CopyProgressListener }
 import sbt.Logger

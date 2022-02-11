@@ -16,7 +16,7 @@
 package org.latestbit.sbt.gcs.gs
 
 import com.google.cloud.storage.Bucket.BlobWriteOption
-import com.google.cloud.storage.{ Blob, BlobId, Storage }
+import com.google.cloud.storage.Storage
 import org.apache.ivy.util.url.URLHandler
 import org.apache.ivy.util.{ CopyProgressEvent, CopyProgressListener }
 import org.latestbit.sbt.gcs.GcsPublishFilePolicy

@@ -37,7 +37,7 @@ lazy val sbtGcsPlaygroundToResolve = project
     crossScalaVersions := Nil,
     resolvers += "Custom Releases" at "gs://private-artifacts",
     libraryDependencies ++= Seq(
-      "org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.7"
+      "org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.8"
     ),
     logLevel := Level.Debug
   )
@@ -46,7 +46,7 @@ lazy val sbtGcsArtifactRepositoryPlaygroundToPublish = project
   .in( file( "playground-publish-artifact-repository" ) )
   .settings(
     name := "sbt-gcs-plugin-playground-artifact-publish",
-    version := "0.0.7",
+    version := "0.0.9",
     crossScalaVersions := Nil,
     gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket,
     publishTo := Some(
@@ -62,7 +62,7 @@ lazy val sbtGcsArtifactRepositoryPlaygroundToResolve = project
     crossScalaVersions := Nil,
     resolvers += "Custom Releases" at "artifactregistry://europe-north1-maven.pkg.dev/abd-artifact-registry-test/test-rep",
     libraryDependencies ++= Seq(
-      "org.latestbit" %% "sbt-gcs-plugin-playground-artifact-publish" % "0.0.7"
+      "org.latestbit" %% "sbt-gcs-plugin-playground-artifact-publish" % "0.0.9"
     ),
     logLevel := Level.Debug
   )
