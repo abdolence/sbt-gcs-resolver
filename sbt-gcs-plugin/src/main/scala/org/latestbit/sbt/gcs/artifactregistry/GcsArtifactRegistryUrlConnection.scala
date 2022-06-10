@@ -15,11 +15,12 @@
  */
 package org.latestbit.sbt.gcs.artifactregistry
 
-import com.google.api.client.http.{ HttpRequestFactory, HttpResponseException }
+import com.google.api.client.http.{ ByteArrayContent, HttpRequestFactory, HttpResponseException }
 import sbt.Logger
 
-import java.io.InputStream
+import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
 import java.net.{ HttpURLConnection, URL }
+import scala.util.Try
 
 class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
     logger: Logger
@@ -54,6 +55,25 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
         responseCode = ex.getStatusCode
         responseMessage = ex.getStatusMessage
         null
+      }
+    }
+  }
+
+  override def getOutputStream: OutputStream = {
+    if (!connected) {
+      connect()
+    }
+    new ByteArrayOutputStream() {
+      override def close(): Unit = {
+        super.close()
+        Try {
+          googleHttpRequestFactory
+            .buildPutRequest( genericUrl, new ByteArrayContent( getRequestProperty( "Content-Type" ), toByteArray ) )
+            .execute()
+        }.recover { case e: Exception =>
+          logger.error( s"Failed to upload $url\n${e.getMessage}" )
+          throw e
+        }
       }
     }
   }
