@@ -15,7 +15,7 @@
  */
 package org.latestbit.sbt.gcs.artifactregistry
 
-import com.google.api.client.http.{ ByteArrayContent, HttpRequestFactory, HttpResponseException }
+import com.google.api.client.http.{ ByteArrayContent, HttpHeaders, HttpRequestFactory, HttpResponseException }
 import sbt.Logger
 
 import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
@@ -25,7 +25,8 @@ import scala.util.Try
 class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
     logger: Logger
 ) extends HttpURLConnection( url ) {
-  private final val genericUrl = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
+  private final val genericUrl           = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
+  private var props: Map[String, String] = Map.empty
 
   logger.info( s"Checking artifact at url: ${url}." )
 
@@ -59,6 +60,11 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
     }
   }
 
+  override def setRequestProperty( key: String, value: String ): Unit = {
+    if (!connected) props += key -> value
+    super.setRequestProperty( key, value )
+  }
+
   override def getOutputStream: OutputStream = {
     if (!connected) {
       connect()
@@ -67,8 +73,10 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
       override def close(): Unit = {
         super.close()
         Try {
-          googleHttpRequestFactory
-            .buildPutRequest( genericUrl, new ByteArrayContent( getRequestProperty( "Content-Type" ), toByteArray ) )
+          val request = googleHttpRequestFactory
+            .buildPutRequest(genericUrl, new ByteArrayContent(props.get("Content-Type").orNull, toByteArray))
+          request
+            .setHeaders( props.foldLeft( request.getHeaders ) { case ( h, ( k, v ) ) => h.set( k, v ) } )
             .execute()
         }.recover { case e: Exception =>
           logger.error( s"Failed to upload $url\n${e.getMessage}" )
