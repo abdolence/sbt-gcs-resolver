@@ -28,14 +28,13 @@ import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
 import java.net.{ HttpURLConnection, URL }
 import scala.util.Try
 import scala.jdk.CollectionConverters.*
+import scala.util.control.NonFatal
 
 class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
     logger: Logger
 ) extends HttpURLConnection( url ) {
   private final val genericUrl                        = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
   private final var connectedWithHeaders: HttpHeaders = new HttpHeaders()
-
-  logger.info( s"Checking artifact at url: ${url}." )
 
   override def connect(): Unit = {
     connected = false
@@ -44,6 +43,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
       super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
         connectedWithHeaders.set( header, headerValues )
       }
+      logger.info( s"Checking artifact at url: ${url}." )
       val httpRequest =
         googleHttpRequestFactory.buildHeadRequest( genericUrl )
       connected = httpRequest.execute().isSuccessStatusCode
@@ -60,6 +60,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
       connect()
     }
     try {
+      logger.info( s"Receiving artifact from url: ${url}." )
       val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
       val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
@@ -81,16 +82,19 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
     new ByteArrayOutputStream() {
       override def close(): Unit = {
         super.close()
-        Try {
+        try {
+          logger.info( s"Upload artifact from to: ${url}." )
+
           val httpRequest =
             googleHttpRequestFactory
               .buildPutRequest( genericUrl, new ByteArrayContent( connectedWithHeaders.getContentType, toByteArray ) )
 
           appendHeadersBeforeConnect( httpRequest ).execute()
-
-        }.recover { case e: Exception =>
-          logger.error( s"Failed to upload $url\n${e.getMessage}" )
-          throw e
+          ()
+        } catch {
+          case NonFatal( ex ) =>
+            logger.error( s"Failed to upload ${url}:\n${ex.getMessage}" )
+            throw ex
         }
       }
     }
