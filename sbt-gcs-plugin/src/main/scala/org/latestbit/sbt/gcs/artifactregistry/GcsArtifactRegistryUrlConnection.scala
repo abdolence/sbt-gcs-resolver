@@ -41,10 +41,11 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
     connected = false
     connectedWithHeaders = new HttpHeaders()
     try {
-      val httpRequest = googleHttpRequestFactory.buildHeadRequest( genericUrl )
       super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
         connectedWithHeaders.set( header, headerValues )
       }
+      val httpRequest =
+        googleHttpRequestFactory.buildHeadRequest( genericUrl )
       connected = httpRequest.execute().isSuccessStatusCode
     } catch {
       case ex: HttpResponseException => {
