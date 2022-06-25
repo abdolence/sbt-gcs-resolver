@@ -102,10 +102,10 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   override def usingProxy(): Boolean = false
 
   private def appendHeadersBeforeConnect( httpRequest: HttpRequest ): HttpRequest = {
-    httpRequest.getHeaders.asScala.foreach { case ( header, headerValues ) =>
-      connectedWithHeaders.set( header, headerValues )
+    connectedWithHeaders.asScala.foreach { case ( header, headerValues ) =>
+      httpRequest.getHeaders.set( header, headerValues )
     }
-    httpRequest.setHeaders( connectedWithHeaders )
+    httpRequest
   }
 
 }
