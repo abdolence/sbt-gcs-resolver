@@ -37,7 +37,7 @@ lazy val sbtGcsPlaygroundToResolve = project
     crossScalaVersions := Nil,
     resolvers += "Custom Releases" at "gs://private-artifacts",
     libraryDependencies ++= Seq(
-      "org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.8"
+      "org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.7"
     ),
     logLevel := Level.Debug
   )
