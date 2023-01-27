@@ -102,7 +102,7 @@ class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFil
         GcsIvyUrlInfo(
           available = true,
           contentLength = blob.getSize.longValue(),
-          lastModified = blob.getUpdateTime.longValue()
+          lastModified = blob.getUpdateTimeOffsetDateTime().toInstant.toEpochMilli
         )
       }
       .getOrElse {
