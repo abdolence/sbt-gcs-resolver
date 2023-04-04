@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableList
 import sbt.Keys._
 import sbt._
 
+import com.google.auth.oauth2.AccessToken
 import java.io.FileInputStream
 import java.nio.file.Path
 import scala.collection.JavaConverters._
@@ -74,6 +75,13 @@ object GcsPlugin extends AutoPlugin {
         GoogleCredentials
           .fromStream( new FileInputStream( path.toFile ) )
           .createScoped( scopes )
+      }
+      .orElse {
+        Option(System.getenv("GOOGLE_OAUTH_ACCESS_TOKEN")).map(accessToken =>
+          GoogleCredentials
+            .create(AccessToken.newBuilder().setTokenValue(accessToken).build())
+            .createScoped(scopes)
+        )
       }
       .getOrElse {
         logger.debug( s"Loading default Google credentials for ${projectRef.toString}" )
