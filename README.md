@@ -56,7 +56,9 @@ googleCredentialsFile := Some(new File("<your-account-file>"))
 ```
   
 - Looking for `gcs-resolver-google-account.json` in `<user-home>/.sbt` directory
-  
+
+- Looking for the Access Token from the environment variable: ``GOOGLE_OAUTH_ACCESS_TOKEN``
+
 - Default application credentials (gcloud settings) or environment variable:
 ```bash
 export GOOGLE_APPLICATION_CREDENTIALS=<your-account-file>
