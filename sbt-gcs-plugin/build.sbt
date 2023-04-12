@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang"   % "scala-library"        % scalaVersion.value,
   "org.scala-lang"   % "scala-reflect"        % scalaVersion.value,
   "org.scala-lang"   % "scala-compiler"       % scalaVersion.value,
-  "org.apache.ivy"   % "ivy"                  % "2.4.0",
+  "org.apache.ivy"   % "ivy"                  % "2.5.1",
   "com.google.cloud" % "google-cloud-storage" % "2.21.0"
 )
 
