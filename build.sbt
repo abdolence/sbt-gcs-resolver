@@ -6,7 +6,7 @@ ThisBuild / homepage := Some( url( "http://latestbit.com" ) )
 
 ThisBuild / licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
 
-ThisBuild / scalaVersion := "2.12.18"
+ThisBuild / scalaVersion := "2.13.12"
 
 ThisBuild / scalacOptions ++= Seq(
   "-encoding",
