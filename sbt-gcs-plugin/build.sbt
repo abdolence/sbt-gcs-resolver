@@ -8,7 +8,7 @@ homepage := Some( url( "http://latestbit.com" ) )
 
 licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
 
-val sbtPluginScalaVersion = "2.12.17"
+val sbtPluginScalaVersion = "2.12.18"
 
 libraryDependencies ++= Seq(
   "org.scala-lang"   % "scala-library"        % scalaVersion.value,
