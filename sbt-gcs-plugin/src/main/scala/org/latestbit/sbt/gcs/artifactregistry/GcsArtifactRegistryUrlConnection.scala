@@ -15,102 +15,22 @@
  */
 package org.latestbit.sbt.gcs.artifactregistry
 
-import com.google.api.client.http.{
-  ByteArrayContent,
-  HttpHeaders,
-  HttpRequest,
-  HttpRequestFactory,
-  HttpResponseException
-}
-import sbt.Logger
+import com.google.api.client.http.HttpRequestFactory
 
-import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
+import java.io.{ InputStream, OutputStream }
 import java.net.{ HttpURLConnection, URL }
-import scala.util.Try
-import scala.jdk.CollectionConverters.*
-import scala.util.control.NonFatal
 
-class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
-    logger: Logger
-) extends HttpURLConnection( url ) {
-  private final val genericUrl                        = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
-  private final var connectedWithHeaders: HttpHeaders = new HttpHeaders()
+class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )
+    extends HttpURLConnection( url ) {
 
-  override def connect(): Unit = {
-    connected = false
-    connectedWithHeaders = new HttpHeaders()
-    try {
-      super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
-        connectedWithHeaders.set( header, headerValues )
-      }
-      logger.info( s"Checking artifact at url: ${url}." )
-      val httpRequest =
-        googleHttpRequestFactory.buildHeadRequest( genericUrl )
-      connected = httpRequest.execute().isSuccessStatusCode
-    } catch {
-      case ex: HttpResponseException => {
-        responseCode = ex.getStatusCode
-        responseMessage = ex.getStatusMessage
-      }
-    }
-  }
+  override def connect(): Unit = ()
 
-  override def getInputStream: InputStream = {
-    if (!connected) {
-      connect()
-    }
-    try {
-      logger.info( s"Receiving artifact from url: ${url}." )
-      val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
+  override def getInputStream: InputStream = super.getInputStream()
 
-      val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
+  override def getOutputStream: OutputStream = super.getOutputStream()
 
-      httpResponse.getContent
-    } catch {
-      case ex: HttpResponseException => {
-        responseCode = ex.getStatusCode
-        responseMessage = ex.getStatusMessage
-        null
-      }
-    }
-  }
-
-  override def getOutputStream: OutputStream = {
-    if (!connected) {
-      connect()
-    }
-    new ByteArrayOutputStream() {
-      override def close(): Unit = {
-        super.close()
-        try {
-          logger.info( s"Upload artifact from to: ${url}." )
-
-          val httpRequest =
-            googleHttpRequestFactory
-              .buildPutRequest( genericUrl, new ByteArrayContent( connectedWithHeaders.getContentType, toByteArray ) )
-
-          appendHeadersBeforeConnect( httpRequest ).execute()
-          ()
-        } catch {
-          case NonFatal( ex ) =>
-            logger.error( s"Failed to upload ${url}:\n${ex.getMessage}" )
-            throw ex
-        }
-      }
-    }
-  }
-
-  override def disconnect(): Unit = {
-    connected = false
-  }
+  override def disconnect(): Unit = ()
 
   override def usingProxy(): Boolean = false
-
-  private def appendHeadersBeforeConnect( httpRequest: HttpRequest ): HttpRequest = {
-    connectedWithHeaders.asScala.foreach { case ( header, headerValues ) =>
-      httpRequest.getHeaders.set( header, headerValues )
-    }
-    httpRequest
-  }
 
 }
