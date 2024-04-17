@@ -26,53 +26,49 @@ import sbt.Logger
 
 import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
 import java.net.{ HttpURLConnection, URL }
-import scala.util.Try
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
-class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
+class GcsArtifactRegistryUrlConnection(
+    googleHttpRequestFactory: HttpRequestFactory,
+    url: URL,
+    var iStream: java.io.InputStream = null
+)( implicit
     logger: Logger
 ) extends HttpURLConnection( url ) {
   private final val genericUrl                        = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
   private final var connectedWithHeaders: HttpHeaders = new HttpHeaders()
 
+  logger.debug( s"Creating a connection for $url" )
+
   override def connect(): Unit = {
-    connected = false
     connectedWithHeaders = new HttpHeaders()
-    try {
-      super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
-        connectedWithHeaders.set( header, headerValues )
-      }
-      logger.info( s"Checking artifact at url: ${url}." )
-      val httpRequest =
-        googleHttpRequestFactory.buildHeadRequest( genericUrl )
-      connected = httpRequest.execute().isSuccessStatusCode
-    } catch {
-      case ex: HttpResponseException => {
-        responseCode = ex.getStatusCode
-        responseMessage = ex.getStatusMessage
-      }
+    super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
+      connectedWithHeaders.set( header, headerValues )
     }
+    connected = true
   }
 
   override def getInputStream: InputStream = {
-    if (!connected) {
-      connect()
-    }
-    try {
-      logger.info( s"Receiving artifact from url: ${url}." )
-      val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
+    if (iStream == null) {
+      if (!connected) {
+        connect()
+      }
+      try {
+        logger.debug( s"Receiving artifact from url: $url." )
+        val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
-      val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
+        val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
 
-      httpResponse.getContent
-    } catch {
-      case ex: HttpResponseException => {
-        responseCode = ex.getStatusCode
-        responseMessage = ex.getStatusMessage
-        null
+        iStream = httpResponse.getContent
+      } catch {
+        case ex: HttpResponseException =>
+          responseCode = ex.getStatusCode
+          responseMessage = ex.getStatusMessage
+          return null
       }
     }
+    iStream
   }
 
   override def getOutputStream: OutputStream = {
