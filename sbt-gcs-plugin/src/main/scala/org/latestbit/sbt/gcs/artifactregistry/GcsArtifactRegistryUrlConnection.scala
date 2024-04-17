@@ -38,20 +38,23 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   private var inputStreamIsReady: Option[InputStream] = None
 
   override def connect(): Unit = {
-    connected = false
-    connectedWithHeaders = new HttpHeaders()
-    try {
-      super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
-        connectedWithHeaders.set( header, headerValues )
-      }
-      logger.info( s"Checking artifact at url: ${url}." )
-      val httpRequest =
-        googleHttpRequestFactory.buildHeadRequest( genericUrl )
-      connected = httpRequest.execute().isSuccessStatusCode
-    } catch {
-      case ex: HttpResponseException => {
-        responseCode = ex.getStatusCode
-        responseMessage = ex.getStatusMessage
+    // According to documentation if the connect method is called
+    // when the connection has already been opened the call is ignored.
+    if (!connected) {
+      connectedWithHeaders = new HttpHeaders()
+      try {
+        super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
+          connectedWithHeaders.set( header, headerValues )
+        }
+        logger.debug( s"Checking artifact at url: ${url}." )
+        val httpRequest =
+          googleHttpRequestFactory.buildHeadRequest( genericUrl )
+        connected = httpRequest.execute().isSuccessStatusCode
+      } catch {
+        case ex: HttpResponseException => {
+          responseCode = ex.getStatusCode
+          responseMessage = ex.getStatusMessage
+        }
       }
     }
   }
@@ -63,21 +66,25 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
         if (!connected) {
           connect()
         }
-        try {
-          logger.info( s"Receiving artifact from url: ${url}." )
-          val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
+        if (responseCode < 400) {
+          try {
+            logger.info( s"Receiving artifact from url: ${url}." )
+            val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
-          val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
+            val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
 
-          val inputStream = httpResponse.getContent
-          inputStreamIsReady = Some( inputStream )
-          inputStream
-        } catch {
-          case ex: HttpResponseException => {
-            responseCode = ex.getStatusCode
-            responseMessage = ex.getStatusMessage
-            null
+            val inputStream = httpResponse.getContent
+            inputStreamIsReady = Some( inputStream )
+            inputStream
+          } catch {
+            case ex: HttpResponseException => {
+              responseCode = ex.getStatusCode
+              responseMessage = ex.getStatusMessage
+              null
+            }
           }
+        } else {
+          null
         }
       }
     }
@@ -112,6 +119,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   override def disconnect(): Unit = {
     connected = false
     inputStreamIsReady = None
+    connectedWithHeaders = new HttpHeaders()
   }
 
   override def usingProxy(): Boolean = false
