@@ -68,7 +68,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
         }
         if (responseCode < 400) {
           try {
-            logger.info( s"Receiving artifact from url: ${url}." )
+            logger.info( s"Receiving an artifact from url: ${url}." )
             val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
             val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
@@ -92,14 +92,11 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   }
 
   override def getOutputStream: OutputStream = {
-    if (!connected) {
-      connect()
-    }
     new ByteArrayOutputStream() {
       override def close(): Unit = {
         super.close()
         try {
-          logger.info( s"Upload artifact from to: ${url}." )
+          logger.info( s"Uploading an artifact to: ${url}." )
 
           val httpRequest =
             googleHttpRequestFactory
@@ -108,6 +105,11 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
           appendHeadersBeforeConnect( httpRequest ).execute()
           ()
         } catch {
+          case ex: HttpResponseException => {
+            responseCode = ex.getStatusCode
+            responseMessage = ex.getStatusMessage
+            throw ex
+          }
           case NonFatal( ex ) =>
             logger.error( s"Failed to upload ${url}:\n${ex.getMessage}" )
             throw ex
