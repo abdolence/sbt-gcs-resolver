@@ -57,12 +57,12 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   }
 
   override def getInputStream: InputStream = {
-    if (!connected) {
-      connect()
-    }
     inputStreamIsReady match {
       case Some( inputStream ) => inputStream
       case None => {
+        if (!connected) {
+          connect()
+        }
         try {
           logger.info( s"Receiving artifact from url: ${url}." )
           val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
