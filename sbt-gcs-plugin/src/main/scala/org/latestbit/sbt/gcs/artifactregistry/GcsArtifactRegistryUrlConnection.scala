@@ -35,6 +35,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
 ) extends HttpURLConnection( url ) {
   private final val genericUrl                        = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
   private final var connectedWithHeaders: HttpHeaders = new HttpHeaders()
+  private var inputStreamIsReady: Option[InputStream] = None
 
   override def connect(): Unit = {
     connected = false
@@ -59,20 +60,28 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
     if (!connected) {
       connect()
     }
-    try {
-      logger.info( s"Receiving artifact from url: ${url}." )
-      val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
+    inputStreamIsReady match {
+      case Some( inputStream ) => inputStream
+      case None => {
+        try {
+          logger.info( s"Receiving artifact from url: ${url}." )
+          val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
-      val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
+          val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
 
-      httpResponse.getContent
-    } catch {
-      case ex: HttpResponseException => {
-        responseCode = ex.getStatusCode
-        responseMessage = ex.getStatusMessage
-        null
+          val inputStream = httpResponse.getContent
+          inputStreamIsReady = Some( inputStream )
+          inputStream
+        } catch {
+          case ex: HttpResponseException => {
+            responseCode = ex.getStatusCode
+            responseMessage = ex.getStatusMessage
+            null
+          }
+        }
       }
     }
+
   }
 
   override def getOutputStream: OutputStream = {
@@ -102,6 +111,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
 
   override def disconnect(): Unit = {
     connected = false
+    inputStreamIsReady = None
   }
 
   override def usingProxy(): Boolean = false
