@@ -42,20 +42,10 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
     // when the connection has already been opened the call is ignored.
     if (!connected) {
       connectedWithHeaders = new HttpHeaders()
-      try {
-        super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
-          connectedWithHeaders.set( header, headerValues )
-        }
-        logger.debug( s"Checking artifact at url: ${url}." )
-        val httpRequest =
-          googleHttpRequestFactory.buildHeadRequest( genericUrl )
-        connected = httpRequest.execute().isSuccessStatusCode
-      } catch {
-        case ex: HttpResponseException => {
-          responseCode = ex.getStatusCode
-          responseMessage = ex.getStatusMessage
-        }
+      super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
+        connectedWithHeaders.set( header, headerValues )
       }
+      connected = true
     }
   }
 
