@@ -58,7 +58,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
         }
         if (responseCode < 400) {
           try {
-            logger.info( s"Receiving an artifact from url: ${url}." )
+            logger.debug( s"Receiving an artifact from url: ${url}." )
             val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
             val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
