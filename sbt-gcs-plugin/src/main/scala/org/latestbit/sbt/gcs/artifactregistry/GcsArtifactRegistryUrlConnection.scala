@@ -24,9 +24,8 @@ import com.google.api.client.http.{
 }
 import sbt.Logger
 
-import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
-import java.net.{ HttpURLConnection, URL }
-import scala.util.Try
+import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
+import java.net.{HttpURLConnection, URL}
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
@@ -42,20 +41,10 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
     // when the connection has already been opened the call is ignored.
     if (!connected) {
       connectedWithHeaders = new HttpHeaders()
-      try {
-        super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
-          connectedWithHeaders.set( header, headerValues )
-        }
-        logger.debug( s"Checking artifact at url: ${url}." )
-        val httpRequest =
-          googleHttpRequestFactory.buildHeadRequest( genericUrl )
-        connected = httpRequest.execute().isSuccessStatusCode
-      } catch {
-        case ex: HttpResponseException => {
-          responseCode = ex.getStatusCode
-          responseMessage = ex.getStatusMessage
-        }
+      super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
+        connectedWithHeaders.set( header, headerValues )
       }
+      connected = true
     }
   }
 
@@ -66,25 +55,21 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
         if (!connected) {
           connect()
         }
-        if (responseCode < 400) {
-          try {
-            logger.info( s"Receiving an artifact from url: ${url}." )
-            val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
+        try {
+          logger.debug( s"Receiving an artifact from url: ${url}." )
+          val httpRequest = googleHttpRequestFactory.buildGetRequest( genericUrl )
 
-            val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
+          val httpResponse = appendHeadersBeforeConnect( httpRequest ).execute()
 
-            val inputStream = httpResponse.getContent
-            inputStreamIsReady = Some( inputStream )
-            inputStream
-          } catch {
-            case ex: HttpResponseException => {
-              responseCode = ex.getStatusCode
-              responseMessage = ex.getStatusMessage
-              null
-            }
+          val inputStream = httpResponse.getContent
+          inputStreamIsReady = Some( inputStream )
+          inputStream
+        } catch {
+          case ex: HttpResponseException => {
+            responseCode = ex.getStatusCode
+            responseMessage = ex.getStatusMessage
+            null
           }
-        } else {
-          null
         }
       }
     }
