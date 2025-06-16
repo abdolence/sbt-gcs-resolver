@@ -17,8 +17,8 @@ package org.latestbit.sbt.gcs
 
 import com.google.api.client.http.HttpRequestFactory
 import com.google.api.client.http.javanet.NetHttpTransport
+import com.google.auth.Credentials
 import com.google.auth.http.{ HttpCredentialsAdapter, HttpTransportFactory }
-import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.StorageOptions
 import org.apache.ivy.util.url.{ URLHandlerDispatcher, URLHandlerRegistry }
 import org.latestbit.sbt.gcs.artifactregistry.{ GcsArtifactRegistryIvyUrlHandler, GcsArtifactRegistryUrlHandler }
@@ -33,7 +33,7 @@ object GcsUrlHandlerFactory {
    * To install if it isn't already installed gs:// URLs handler
    * without throwing a java.net.MalformedURLException.
    */
-  def install( credentials: GoogleCredentials, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit
+  def install( credentials: Credentials, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit
       logger: Logger,
       projectRef: ProjectRef
   ) = {
@@ -75,7 +75,7 @@ object GcsUrlHandlerFactory {
     new NetHttpTransport()
   }
 
-  private def createHttpRequestFactory( credentials: GoogleCredentials ): HttpRequestFactory = {
+  private def createHttpRequestFactory( credentials: Credentials ): HttpRequestFactory = {
     val requestInitializer = new HttpCredentialsAdapter( credentials )
     val httpTransport      = httpTransportFactory.create()
     httpTransport.createRequestFactory( requestInitializer )
