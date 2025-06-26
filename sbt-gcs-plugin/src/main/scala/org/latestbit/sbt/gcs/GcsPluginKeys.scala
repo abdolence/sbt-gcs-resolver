@@ -15,6 +15,7 @@
  */
 package org.latestbit.sbt.gcs
 
+import com.google.auth.Credentials
 import sbt._
 
 class GcsPluginKeys {
@@ -23,5 +24,7 @@ class GcsPluginKeys {
     settingKey[GcsPublishFilePolicy]( "Published artifacts will have either inherited access rights or public." )
 
   val googleCredentialsFile = settingKey[Option[File]]( "A file path to Google credentials (optional)" )
+
+  val googleCredentials = settingKey[Option[Credentials]]( "A Google credentials (optional)" )
 
 }
