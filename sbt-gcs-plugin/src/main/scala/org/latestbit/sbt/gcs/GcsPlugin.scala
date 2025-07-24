@@ -15,7 +15,7 @@
  */
 package org.latestbit.sbt.gcs
 
-import com.google.auth.oauth2.GoogleCredentials
+import com.google.auth.Credentials
 import com.google.common.collect.ImmutableList
 import sbt.Keys._
 import sbt._
@@ -35,6 +35,7 @@ object GcsPlugin extends AutoPlugin {
   private val gcsPluginDefaultSettings = Seq(
     gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket,
     googleCredentialsFile := None
+    googleCredentials := None
   )
 
   private val gcsPluginTaskInits = Seq(
@@ -42,10 +43,11 @@ object GcsPlugin extends AutoPlugin {
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
       Try {
-        val googleCredentials = loadGoogleCredentials(
-          googleCredentialsFile.value.map( _.toPath )
+        val credentials = loadGoogleCredentials(
+          googleCredentialsFile.value.map( _.toPath ),
+          googleCredentials.value
         )
-        GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
+        GcsUrlHandlerFactory.install( credentials, gcsPublishFilePolicy.value )
       } match {
         case Success( _ ) => state
         case Failure( err ) => {
@@ -64,17 +66,22 @@ object GcsPlugin extends AutoPlugin {
       super.projectSettings
 
   private def loadGoogleCredentials(
-      gcsCredentialsFilePath: Option[Path]
-  )( implicit logger: Logger, projectRef: ProjectRef ): GoogleCredentials = {
+      gcsCredentialsFilePath: Option[Path],
+      gcsCredentials: Option[Credentials]
+  )( implicit logger: Logger, projectRef: ProjectRef ): Credentials = {
     val scopes: java.util.Collection[String] =
       ImmutableList.copyOf( GoogleCredentialsScopes.asJavaCollection.iterator() )
-    gcsCredentialsFilePath
-      .orElse( lookupGoogleCredentialsInSbtDir() )
-      .map { path =>
-        logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
-        GoogleCredentials
-          .fromStream( new FileInputStream( path.toFile ) )
-          .createScoped( scopes )
+    
+    gcsCredentials
+      .orElse {
+        gcsCredentialsFilePath
+          .orElse( lookupGoogleCredentialsInSbtDir() )
+          .map { path =>
+            logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
+            GoogleCredentials
+              .fromStream( new FileInputStream( path.toFile ) )
+              .createScoped( scopes )
+          }
       }
       .orElse {
         Option(System.getenv("GOOGLE_OAUTH_ACCESS_TOKEN")).map(accessToken =>
