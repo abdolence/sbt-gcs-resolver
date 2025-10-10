@@ -1,5 +1,5 @@
 # SBT plugin for Google Cloud Storage (GCS) and Google Artifact Registry
-[![Maven Central](https://maven-badges.herokuapp.com/maven-central/org.latestbit/sbt-gcs-plugin/badge.svg)](https://maven-badges.herokuapp.com/maven-central/org.latestbit/sbt-gcs-plugin/)
+[![Maven Central](https://maven-badges.sml.io/maven-central/org.latestbit/sbt-gcs-plugin/badge.svg)](https://maven-badges.sml.io/maven-central/org.latestbit/sbt-gcs-plugin)
 
 Features:
 - Support for raw Google Cloud Storage buckets (`gs://`)
