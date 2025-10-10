@@ -1,6 +1,6 @@
 name := "sbt-gcs-plugin"
 
-description := "A SBT resolver and publisher for Google Cloud Storage"
+description := "A SBT plugin for Google Cloud Storage (GCS) and Google Artifact Registry"
 
 organization := "org.latestbit"
 
