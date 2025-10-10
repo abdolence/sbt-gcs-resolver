@@ -29,13 +29,13 @@ scalaVersion := ( CrossVersion partialVersion ( pluginCrossBuild / sbtVersion ).
 
 publishMavenStyle := true
 
-publishTo := {
-  val nexus = "https://oss.sonatype.org/"
-  if (isSnapshot.value)
-    Some( "snapshots" at nexus + "content/repositories/snapshots" )
-  else
-    Some( "releases" at nexus + "service/local/staging/deploy/maven2" )
-}
+import xerial.sbt.Sonatype.sonatypeCentralHost
+
+ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
+
+ThisBuild / publishTo := sonatypePublishToBundle.value 
+
+ThisBuild / sbtPluginPublishLegacyMavenStyle := false
 
 pomExtra := (
   <developers>
