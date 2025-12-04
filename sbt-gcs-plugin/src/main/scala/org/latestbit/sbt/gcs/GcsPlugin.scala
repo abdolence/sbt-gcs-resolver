@@ -33,8 +33,9 @@ object GcsPlugin extends AutoPlugin {
   import autoImport._
 
   private val gcsPluginDefaultSettings = Seq(
-    gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket,
-    googleCredentialsFile := None
+    gcsPublishFilePolicy     := GcsPublishFilePolicy.InheritedFromBucket,
+    googleCredentialsFile    := None,
+    googleCredentialsDisable := false
   )
 
   private val gcsPluginTaskInits = Seq(
@@ -42,15 +43,22 @@ object GcsPlugin extends AutoPlugin {
       implicit val logger: Logger         = state.log
       implicit val projectRef: ProjectRef = thisProjectRef.value
       Try {
-        val googleCredentials = loadGoogleCredentials(
-          googleCredentialsFile.value.map( _.toPath )
-        )
+        val googleCredentials = if ( googleCredentialsDisable.value ) {
+          logger.debug( s"Google Application Default Credentials lookup is disabled for ${projectRef.toString}" )
+          None
+        } else {
+          Some(
+            loadGoogleCredentials(
+              googleCredentialsFile.value.map( _.toPath )
+            )
+          )
+        }
         GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
       } match {
-        case Success( _ ) => state
+        case Success( _ )   => state
         case Failure( err ) => {
           logger.err(
-            s"Unable to find/initialise google credentials: ${err}. Publishing/resolving artifacts from GCP is disabled."
+            s"Unable to find/initialise google credentials: ${err}. Publishing/resolving artifacts from GCP is disabled (${projectRef.toString})."
           )
           state
         }
@@ -77,10 +85,10 @@ object GcsPlugin extends AutoPlugin {
           .createScoped( scopes )
       }
       .orElse {
-        Option(System.getenv("GOOGLE_OAUTH_ACCESS_TOKEN")).map(accessToken =>
+        Option( System.getenv( "GOOGLE_OAUTH_ACCESS_TOKEN" ) ).map( accessToken =>
           GoogleCredentials
-            .create(AccessToken.newBuilder().setTokenValue(accessToken).build())
-            .createScoped(scopes)
+            .create( AccessToken.newBuilder().setTokenValue( accessToken ).build() )
+            .createScoped( scopes )
         )
       }
       .getOrElse {
@@ -93,9 +101,9 @@ object GcsPlugin extends AutoPlugin {
   private def lookupGoogleCredentialsInSbtDir(): Option[Path] = {
     Try( Option( System.getProperty( "user.home" ) ) ).toOption.flatten.flatMap { userHomeDir =>
       val sbtUserRootDir = new File( userHomeDir, ".sbt" )
-      if (sbtUserRootDir.exists() && sbtUserRootDir.isDirectory) {
+      if ( sbtUserRootDir.exists() && sbtUserRootDir.isDirectory ) {
         val googleAccountInSbt = new File( sbtUserRootDir, "gcs-resolver-google-account.json" )
-        if (googleAccountInSbt.exists() && googleAccountInSbt.isFile) {
+        if ( googleAccountInSbt.exists() && googleAccountInSbt.isFile ) {
           Some( googleAccountInSbt.toPath )
         } else
           None

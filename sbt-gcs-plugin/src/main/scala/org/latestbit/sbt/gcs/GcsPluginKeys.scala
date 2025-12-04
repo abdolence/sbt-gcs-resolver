@@ -24,4 +24,7 @@ class GcsPluginKeys {
 
   val googleCredentialsFile = settingKey[Option[File]]( "A file path to Google credentials (optional)" )
 
+  val googleCredentialsDisable =
+    settingKey[Boolean]( "If true, disables automatic lookup of Google Application Default Credentials." )
+
 }

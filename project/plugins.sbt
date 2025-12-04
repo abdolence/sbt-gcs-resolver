@@ -7,3 +7,5 @@ addSbtPlugin( "org.latestbit" % "sbt-gcs-plugin" % "1.12.0" )
 addSbtPlugin( "org.scalameta" % "sbt-scalafmt" % "2.5.4" )
 
 addSbtPlugin( "com.typesafe.sbt" % "sbt-git" % "1.0.2" )
+
+addSbtPlugin( "org.xerial.sbt" % "sbt-sonatype" % "3.12.2" )

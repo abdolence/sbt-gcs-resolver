@@ -29,16 +29,18 @@ import java.net.URL
 
 object GcsUrlHandlerFactory {
 
-  /**
-   * To install if it isn't already installed gs:// URLs handler
-   * without throwing a java.net.MalformedURLException.
-   */
-  def install( credentials: GoogleCredentials, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit
+  /** To install if it isn't already installed gs:// URLs handler without throwing a java.net.MalformedURLException.
+    */
+  def install( credentials: Option[GoogleCredentials], gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit
       logger: Logger,
       projectRef: ProjectRef
   ) = {
 
-    val gcsStorage               = StorageOptions.newBuilder().setCredentials( credentials ).build().getService
+    val gcsStorage = {
+      val builder = StorageOptions.newBuilder()
+      credentials.foreach( builder.setCredentials( _ ) )
+      builder.build().getService
+    }
     val googleHttpRequestFactory = createHttpRequestFactory( credentials )
 
     // Install gs:// handler for JDK
@@ -59,7 +61,7 @@ object GcsUrlHandlerFactory {
     // Install gs:// handler for ivy
     val dispatcher: URLHandlerDispatcher = URLHandlerRegistry.getDefault match {
       case existingUrlHandlerDispatcher: URLHandlerDispatcher => existingUrlHandlerDispatcher
-      case otherKindOfDispatcher =>
+      case otherKindOfDispatcher                              =>
         logger.info( "Setting up Ivy URLHandlerDispatcher to handle gs:// and artifactregistry://" )
         val dispatcher: URLHandlerDispatcher = new URLHandlerDispatcher()
         dispatcher.setDefault( otherKindOfDispatcher )
@@ -75,9 +77,15 @@ object GcsUrlHandlerFactory {
     new NetHttpTransport()
   }
 
-  private def createHttpRequestFactory( credentials: GoogleCredentials ): HttpRequestFactory = {
-    val requestInitializer = new HttpCredentialsAdapter( credentials )
-    val httpTransport      = httpTransportFactory.create()
-    httpTransport.createRequestFactory( requestInitializer )
+  private def createHttpRequestFactory( credentials: Option[GoogleCredentials] ): HttpRequestFactory = {
+    val httpTransport = httpTransportFactory.create()
+    credentials
+      .map { creds =>
+        httpTransport.createRequestFactory( new HttpCredentialsAdapter( creds ) )
+      }
+      .getOrElse {
+        httpTransport.createRequestFactory()
+      }
+
   }
 }
