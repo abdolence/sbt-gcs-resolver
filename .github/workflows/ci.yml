@@ -1,3 +1,4 @@
+name: Compile and Tests
 on:
   pull_request:
   push:
