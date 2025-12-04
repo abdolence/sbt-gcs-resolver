@@ -96,7 +96,13 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: HttpRequestFac
         }
       }
     )
-    httpRequest.execute()
+    try {
+      httpRequest.execute()
+    } catch {
+      case ex: Exception =>
+        logger.error( s"Unable to publish an artifact to '${dest}': ${ex.getMessage}" )
+        throw ex
+    }
     Option( l ).foreach( _.end( event ) )
   }
 

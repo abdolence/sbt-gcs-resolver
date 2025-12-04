@@ -84,6 +84,12 @@ The example how to use with GitHub Actions is:
       access_token_lifetime: '240s'
 ```
 
+### No credentials mode
+If you want to access only public buckets without any authentication you can disable credentials loading:
+```
+googleCredentialsDisable := true
+```
+
 ### Configure publish access level (GCS only):
 ```
 gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket // Default
