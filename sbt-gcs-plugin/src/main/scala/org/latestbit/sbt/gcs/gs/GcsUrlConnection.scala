@@ -57,7 +57,7 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
   }
 
   override def getInputStream: InputStream = {
-    if (!connected)
+    if ( !connected )
       connect()
     blob
       .map( b => Channels.newInputStream( b.reader() ) )
