@@ -24,8 +24,8 @@ import com.google.api.client.http.{
 }
 import sbt.Logger
 
-import java.io.{ByteArrayOutputStream, InputStream, OutputStream}
-import java.net.{HttpURLConnection, URL}
+import java.io.{ ByteArrayOutputStream, InputStream, OutputStream }
+import java.net.{ HttpURLConnection, URL }
 import scala.jdk.CollectionConverters.*
 import scala.util.control.NonFatal
 
@@ -39,7 +39,7 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   override def connect(): Unit = {
     // According to documentation if the connect method is called
     // when the connection has already been opened the call is ignored.
-    if (!connected) {
+    if ( !connected ) {
       connectedWithHeaders = new HttpHeaders()
       super.getRequestProperties.asScala.foreach { case ( header, headerValues ) =>
         connectedWithHeaders.set( header, headerValues )
@@ -51,8 +51,8 @@ class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFac
   override def getInputStream: InputStream = {
     inputStreamIsReady match {
       case Some( inputStream ) => inputStream
-      case None => {
-        if (!connected) {
+      case None                => {
+        if ( !connected ) {
           connect()
         }
         try {

@@ -33,7 +33,7 @@ import xerial.sbt.Sonatype.sonatypeCentralHost
 
 ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
 
-ThisBuild / publishTo := sonatypePublishToBundle.value 
+ThisBuild / publishTo := sonatypePublishToBundle.value
 
 ThisBuild / sbtPluginPublishLegacyMavenStyle := false
 
