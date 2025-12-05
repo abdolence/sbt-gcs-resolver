@@ -23,7 +23,7 @@ import com.google.cloud.storage.StorageOptions
 import org.apache.ivy.util.url.{ URLHandlerDispatcher, URLHandlerRegistry }
 import org.latestbit.sbt.gcs.artifactregistry.{ GcsArtifactRegistryIvyUrlHandler, GcsArtifactRegistryUrlHandler }
 import org.latestbit.sbt.gcs.gs.{ GcsIvyUrlHandler, GcsUrlHandler }
-import sbt.{ Logger, ProjectRef }
+import sbt.Logger
 
 import java.net.URL
 
@@ -32,8 +32,7 @@ object GcsUrlHandlerFactory {
   /** To install if it isn't already installed gs:// URLs handler without throwing a java.net.MalformedURLException.
     */
   def install( credentials: Option[GoogleCredentials], gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit
-      logger: Logger,
-      projectRef: ProjectRef
+      logger: Logger
   ) = {
 
     val gcsStorage = {
@@ -47,10 +46,10 @@ object GcsUrlHandlerFactory {
     try {
       new URL( "gs://example.com" )
       new URL( "artifactregistry://example.com" )
-      logger.debug( s"The gs:// and artifactregistry:// URLStreamHandlers are already installed for ${projectRef}" )
+      logger.debug( s"The gs:// and artifactregistry:// URLStreamHandlers are already installed" )
     } catch {
       case _: java.net.MalformedURLException =>
-        logger.info( s"Installing gs:// and artifactregistry:// URLStreamHandlers for ${projectRef}" )
+        logger.info( s"Installing gs:// and artifactregistry:// URLStreamHandlers" )
         URL.setURLStreamHandlerFactory {
           case "gs"               => new GcsUrlHandler( gcsStorage )
           case "artifactregistry" => new GcsArtifactRegistryUrlHandler( googleHttpRequestFactory )
