@@ -33,18 +33,17 @@ object GcsPlugin extends AutoPlugin {
   import autoImport._
 
   private val gcsPluginDefaultSettings = Seq(
-    gcsPublishFilePolicy     := GcsPublishFilePolicy.InheritedFromBucket,
-    googleCredentialsFile    := None,
-    googleCredentialsDisable := false
+    Global / gcsPublishFilePolicy     := GcsPublishFilePolicy.InheritedFromBucket,
+    Global / googleCredentialsFile    := None,
+    Global / googleCredentialsDisable := false
   )
 
   private val gcsPluginTaskInits = Seq(
     onLoad in Global := ( onLoad in Global ).value.andThen { state =>
-      implicit val logger: Logger         = state.log
-      implicit val projectRef: ProjectRef = thisProjectRef.value
+      implicit val logger: Logger = state.log
       Try {
         val googleCredentials = if ( googleCredentialsDisable.value ) {
-          logger.debug( s"Google Application Default Credentials lookup is disabled for ${projectRef.toString}" )
+          logger.debug( s"Google Application Default Credentials lookup is disabled" )
           None
         } else {
           Some(
@@ -54,11 +53,14 @@ object GcsPlugin extends AutoPlugin {
           )
         }
         GcsUrlHandlerFactory.install( googleCredentials, gcsPublishFilePolicy.value )
+        logger.info(
+          s"Google GCS/Artifact Registry support is enabled. Google Credentials: ${googleCredentials.map( _ => "identified" ).getOrElse( "unused" )} "
+        )
       } match {
         case Success( _ )   => state
         case Failure( err ) => {
           logger.err(
-            s"Unable to find/initialise google credentials: ${err}. Publishing/resolving artifacts from GCP is disabled (${projectRef.toString})."
+            s"Unable to find/initialise google credentials: ${err}. Publishing/resolving artifacts from GCP is disabled."
           )
           state
         }
@@ -66,20 +68,17 @@ object GcsPlugin extends AutoPlugin {
     }
   )
 
-  override def projectSettings: Seq[Def.Setting[_]] =
-    gcsPluginDefaultSettings ++
-      gcsPluginTaskInits ++
-      super.projectSettings
+  override def globalSettings: Seq[Setting[_]] = gcsPluginTaskInits ++ gcsPluginDefaultSettings ++ super.globalSettings
 
   private def loadGoogleCredentials(
       gcsCredentialsFilePath: Option[Path]
-  )( implicit logger: Logger, projectRef: ProjectRef ): GoogleCredentials = {
+  )( implicit logger: Logger ): GoogleCredentials = {
     val scopes: java.util.Collection[String] =
       ImmutableList.copyOf( GoogleCredentialsScopes.asJavaCollection.iterator() )
     gcsCredentialsFilePath
       .orElse( lookupGoogleCredentialsInSbtDir() )
       .map { path =>
-        logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString} for ${projectRef.toString}" )
+        logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString}" )
         GoogleCredentials
           .fromStream( new FileInputStream( path.toFile ) )
           .createScoped( scopes )
@@ -92,7 +91,7 @@ object GcsPlugin extends AutoPlugin {
         )
       }
       .getOrElse {
-        logger.debug( s"Loading default Google credentials for ${projectRef.toString}" )
+        logger.debug( s"Loading default Google credentials" )
         GoogleCredentials.getApplicationDefault().createScoped( scopes )
       }
 

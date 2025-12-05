@@ -51,7 +51,7 @@ resolvers += "My private artifacts" at "artifactregistry://<your-artifact-regist
 Plugin tries to load Google Account in the following order:
 - Specified settings in sbt build
 ```
-googleCredentialsFile := Some(new File("<your-account-file>"))
+Global / googleCredentialsFile := Some(new File("<your-account-file>"))
 ``` 
 - Looking for `gcs-resolver-google-account.json` in `<user-home>/.sbt` directory
 - Looking for the Access Token from the environment variable: ``GOOGLE_OAUTH_ACCESS_TOKEN``
@@ -87,15 +87,15 @@ The example how to use with GitHub Actions is:
 ### No credentials mode
 If you want to access only public buckets without any authentication you can disable credentials loading:
 ```
-googleCredentialsDisable := true
+Global / googleCredentialsDisable := true
 ```
 
 ### Configure publish access level (GCS only):
 ```
-gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket // Default
+Global / gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket // Default
 
 // If you really need to make some of the files available for everyone
-gcsPublishFilePolicy := GcsPublishFilePolicy.PublicAccess 
+Global / gcsPublishFilePolicy := GcsPublishFilePolicy.PublicAccess 
 ```
 For Google Artifact Registry please use gcloud/GCP console to manage security.
 
