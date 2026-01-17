@@ -1,11 +1,3 @@
-lazy val root = ( project in file( "." ) ) dependsOn sbtGcsPlugin
+addSbtPlugin( "org.scalameta" % "sbt-scalafmt" % "2.5.6" )
 
-lazy val sbtGcsPlugin = ProjectRef( file( "../sbt-gcs-plugin" ), "sbt-gcs-plugin" )
-
-addSbtPlugin( "org.latestbit" % "sbt-gcs-plugin" % "1.16.1" )
-
-addSbtPlugin( "org.scalameta" % "sbt-scalafmt" % "2.5.4" )
-
-addSbtPlugin( "com.typesafe.sbt" % "sbt-git" % "1.0.2" )
-
-addSbtPlugin( "org.xerial.sbt" % "sbt-sonatype" % "3.12.2" )
+addSbtPlugin( "com.github.sbt" % "sbt-git" % "2.1.0" )
