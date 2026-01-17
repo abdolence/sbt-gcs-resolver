@@ -17,7 +17,7 @@ sbt v1.4+ (I haven't tested this with previous versions)
 Add this to your `project/plugins.sbt`:
 
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.14.0")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.16.1")
 ```
 
 ### GCS publishing
