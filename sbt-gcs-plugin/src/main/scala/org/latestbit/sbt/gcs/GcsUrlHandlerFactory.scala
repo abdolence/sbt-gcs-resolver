@@ -17,15 +17,15 @@ package org.latestbit.sbt.gcs
 
 import com.google.api.client.http.HttpRequestFactory
 import com.google.api.client.http.javanet.NetHttpTransport
-import com.google.auth.http.{ HttpCredentialsAdapter, HttpTransportFactory }
+import com.google.auth.http.{HttpCredentialsAdapter, HttpTransportFactory}
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.StorageOptions
-import org.apache.ivy.util.url.{ URLHandlerDispatcher, URLHandlerRegistry }
-import org.latestbit.sbt.gcs.artifactregistry.{ GcsArtifactRegistryIvyUrlHandler, GcsArtifactRegistryUrlHandler }
-import org.latestbit.sbt.gcs.gs.{ GcsIvyUrlHandler, GcsUrlHandler }
+import org.apache.ivy.util.url.{URLHandlerDispatcher, URLHandlerRegistry}
+import org.latestbit.sbt.gcs.artifactregistry.{GcsArtifactRegistryIvyUrlHandler, GcsArtifactRegistryUrlHandler}
+import org.latestbit.sbt.gcs.gs.{GcsIvyUrlHandler, GcsUrlHandler}
 import sbt.Logger
 
-import java.net.URL
+import java.net.{URI, URL}
 
 object GcsUrlHandlerFactory {
 
@@ -44,8 +44,8 @@ object GcsUrlHandlerFactory {
 
     // Install gs:// handler for JDK
     try {
-      new URL( "gs://example.com" )
-      new URL( "artifactregistry://example.com" )
+      new URI( "gs://example.com" ).toURL
+      new URI( "artifactregistry://example.com" ).toURL
       logger.debug( s"The gs:// and artifactregistry:// URLStreamHandlers are already installed" )
     } catch {
       case _: java.net.MalformedURLException =>
