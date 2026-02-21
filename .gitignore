@@ -9,6 +9,7 @@
 # User-specific stuff
 .idea/
 .idea/**
+.vscode/
 
 # CMake
 cmake-build-*/

@@ -23,7 +23,7 @@ import sbt._
 import com.google.auth.oauth2.AccessToken
 import java.io.FileInputStream
 import java.nio.file.Path
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.util.{ Failure, Success, Try }
 
 object GcsPlugin extends AutoPlugin {
@@ -39,7 +39,7 @@ object GcsPlugin extends AutoPlugin {
   )
 
   private val gcsPluginTaskInits = Seq(
-    onLoad in Global := ( onLoad in Global ).value.andThen { state =>
+    ( Global / onLoad ) := ( Global / onLoad ).value.andThen { state =>
       implicit val logger: Logger = state.log
       Try {
         val googleCredentials = if ( googleCredentialsDisable.value ) {
