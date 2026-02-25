@@ -85,7 +85,7 @@ The example how to use with GitHub Actions is:
 ```
 
 ### No credentials mode
-If you want to access only public buckets without any authentication you can disable credentials loading:
+If you want to access publicly available buckets/registries without any authentication you can disable credentials loading using:
 ```
 Global / googleCredentialsDisable := true
 ```
@@ -97,7 +97,7 @@ Global / gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket // Def
 // If you really need to make some of the files available for everyone
 Global / gcsPublishFilePolicy := GcsPublishFilePolicy.PublicAccess 
 ```
-For Google Artifact Registry please use gcloud/GCP console to manage security.
+For Google Artifact Registry please use Google Cloud IAM to manage security.
 
 ### Licence
 Apache Software License (ASL)
