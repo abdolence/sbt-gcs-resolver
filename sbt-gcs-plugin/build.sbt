@@ -14,7 +14,7 @@ libraryDependencies ++= Seq(
   "org.scala-lang"   % "scala-library"        % scalaVersion.value,
   "org.scala-lang"   % "scala-reflect"        % scalaVersion.value,
   "org.scala-lang"   % "scala-compiler"       % scalaVersion.value,
-  "com.google.cloud" % "google-cloud-storage" % "2.63.0"
+  "com.google.cloud" % "google-cloud-storage" % "2.69.0"
 )
 
 sbtPlugin := true
