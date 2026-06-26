@@ -20,10 +20,11 @@ import sbt.Logger
 
 import java.net.{ URL, URLConnection, URLStreamHandler }
 
-class GcsArtifactRegistryUrlHandler( googleHttpRequestFactory: HttpRequestFactory )( implicit logger: Logger )
+class GcsArtifactRegistryUrlHandler( googleHttpRequestFactory: => HttpRequestFactory )( implicit logger: Logger )
     extends URLStreamHandler {
+  private lazy val factory = googleHttpRequestFactory
 
   override def openConnection( url: URL ): URLConnection = {
-    new GcsArtifactRegistryUrlConnection( googleHttpRequestFactory, url )
+    new GcsArtifactRegistryUrlConnection( factory, url )
   }
 }

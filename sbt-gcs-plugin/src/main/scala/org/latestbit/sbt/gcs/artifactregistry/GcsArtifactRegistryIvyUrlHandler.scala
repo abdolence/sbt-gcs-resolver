@@ -26,8 +26,9 @@ import java.nio.file.Files
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 
-class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: HttpRequestFactory )( implicit logger: Logger )
+class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequestFactory )( implicit logger: Logger )
     extends URLHandler {
+  private lazy val factory = googleHttpRequestFactory
 
   override def isReachable( url: URL ): Boolean = getURLInfo( url ).isReachable
 
@@ -43,7 +44,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: HttpRequestFac
 
   override def getURLInfo( url: URL ): URLHandler.URLInfo = {
     val genericUrl   = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
-    val httpRequest  = googleHttpRequestFactory.buildHeadRequest( genericUrl ).setThrowExceptionOnExecuteError( false )
+    val httpRequest  = factory.buildHeadRequest( genericUrl ).setThrowExceptionOnExecuteError( false )
     val httpResponse = httpRequest.execute()
     GcsArtifactRegistryIvyUrlInfo(
       available = httpResponse.isSuccessStatusCode,
@@ -59,7 +60,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: HttpRequestFac
 
   override def openStream( url: URL ): InputStream = {
     val genericUrl   = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
-    val httpRequest  = googleHttpRequestFactory.buildGetRequest( genericUrl )
+    val httpRequest  = factory.buildGetRequest( genericUrl )
     val httpResponse = httpRequest.execute()
     httpResponse.getContent
   }
