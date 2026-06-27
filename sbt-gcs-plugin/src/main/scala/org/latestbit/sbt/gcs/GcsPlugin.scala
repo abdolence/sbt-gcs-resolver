@@ -41,15 +41,16 @@ object GcsPlugin extends AutoPlugin {
           googleCredentialsDisable = googleCredentialsDisable.value,
           gcsPublishFilePolicy = gcsPublishFilePolicy.value
         )
+        logger.info( s"Google GCS/Artifact Registry support is enabled." )
       } match {
-        case Success( _ ) =>
-          logger.info( s"Google GCS/Artifact Registry support is enabled." )
-        case Failure( err ) =>
+        case Success( _ )   => state
+        case Failure( err ) => {
           logger.err(
             s"Unable to install GCS/Artifact Registry URL handlers: ${err}. Publishing/resolving artifacts from GCP is disabled."
           )
+          state
+        }
       }
-      state
     }
   )
 
