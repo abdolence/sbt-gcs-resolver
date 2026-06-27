@@ -34,8 +34,8 @@ import scala.util.Try
 
 object GcsUrlHandlerFactory {
 
-  /** Registers gs:// and artifactregistry:// URL handlers unconditionally.
-    * Credentials are loaded lazily on the first actual network request.
+  /** Registers gs:// and artifactregistry:// URL handlers unconditionally. Credentials are loaded lazily on the first
+    * actual network request.
     */
   def install(
       googleCredentialsFile: Option[File],
@@ -144,5 +144,6 @@ object GcsUrlHandlerFactory {
       .getOrElse {
         httpTransport.createRequestFactory()
       }
+
   }
 }

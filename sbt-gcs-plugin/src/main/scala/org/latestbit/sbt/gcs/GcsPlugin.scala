@@ -18,6 +18,8 @@ package org.latestbit.sbt.gcs
 import sbt.Keys._
 import sbt._
 
+import scala.util.{ Failure, Success, Try }
+
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
@@ -33,12 +35,20 @@ object GcsPlugin extends AutoPlugin {
   private val gcsPluginTaskInits = Seq(
     onLoad in Global := ( onLoad in Global ).value.andThen { state =>
       implicit val logger: Logger = state.log
-      GcsUrlHandlerFactory.install(
-        googleCredentialsFile    = googleCredentialsFile.value,
-        googleCredentialsDisable = googleCredentialsDisable.value,
-        gcsPublishFilePolicy     = gcsPublishFilePolicy.value
-      )
-      logger.info( s"Google GCS/Artifact Registry support is enabled." )
+      Try {
+        GcsUrlHandlerFactory.install(
+          googleCredentialsFile = googleCredentialsFile.value,
+          googleCredentialsDisable = googleCredentialsDisable.value,
+          gcsPublishFilePolicy = gcsPublishFilePolicy.value
+        )
+      } match {
+        case Success( _ ) =>
+          logger.info( s"Google GCS/Artifact Registry support is enabled." )
+        case Failure( err ) =>
+          logger.err(
+            s"Unable to install GCS/Artifact Registry URL handlers: ${err}. Publishing/resolving artifacts from GCP is disabled."
+          )
+      }
       state
     }
   )
