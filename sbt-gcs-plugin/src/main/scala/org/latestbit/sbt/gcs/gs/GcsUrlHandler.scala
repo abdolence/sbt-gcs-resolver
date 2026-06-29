@@ -20,9 +20,10 @@ import sbt.Logger
 
 import java.net.{ URL, URLConnection, URLStreamHandler }
 
-class GcsUrlHandler( gcsStorage: Storage )( implicit logger: Logger ) extends URLStreamHandler {
+class GcsUrlHandler( gcsStorage: => Storage )( implicit logger: Logger ) extends URLStreamHandler {
+  private lazy val storage = gcsStorage
 
   override def openConnection( url: URL ): URLConnection = {
-    new GcsUrlConnection( gcsStorage, url )
+    new GcsUrlConnection( storage, url )
   }
 }

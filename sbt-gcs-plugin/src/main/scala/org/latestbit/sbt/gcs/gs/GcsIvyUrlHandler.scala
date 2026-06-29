@@ -26,8 +26,9 @@ import java.io.{ File, FileInputStream, InputStream }
 import java.net.URL
 import java.nio.channels.Channels
 
-class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit logger: Logger )
+class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublishFilePolicy )( implicit logger: Logger )
     extends URLHandler {
+  private lazy val storage = gcsStorage
 
   override def isReachable( url: URL ): Boolean = urlToGcsIvyUrlInfo( url ).available
 
@@ -46,7 +47,7 @@ class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFil
   override def getURLInfo( url: URL, timeout: Int ): URLHandler.URLInfo = getURLInfo( url )
 
   override def openStream( url: URL ): InputStream = {
-    Option( gcsStorage.get( GcsUrlConnection.toBlobId( url ) ) ).map { blob =>
+    Option( storage.get( GcsUrlConnection.toBlobId( url ) ) ).map { blob =>
       Channels.newInputStream( blob.reader() )
     }.orNull
   }
@@ -54,7 +55,7 @@ class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFil
   override def download( src: URL, dest: File, l: CopyProgressListener ): Unit = {
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )
-    Option( gcsStorage.get( GcsUrlConnection.toBlobId( src ) ) )
+    Option( storage.get( GcsUrlConnection.toBlobId( src ) ) )
       .foreach { blob =>
         blob.downloadTo( dest.toPath )
       }
@@ -64,7 +65,7 @@ class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFil
   override def upload( src: File, dest: URL, l: CopyProgressListener ): Unit = {
     val bucketName  = dest.getHost
     val destination = dest.getPath.drop( 1 )
-    Option( gcsStorage.get( bucketName ) ) match {
+    Option( storage.get( bucketName ) ) match {
       case Some( gcsBucket ) => {
         logger.info(
           s"Publishing GCS artifact to '${dest}'..."
@@ -97,7 +98,7 @@ class GcsIvyUrlHandler( gcsStorage: Storage, gcsPublishFilePolicy: GcsPublishFil
   override def setRequestMethod( requestMethod: Int ): Unit = ()
 
   private def urlToGcsIvyUrlInfo( url: URL ): GcsIvyUrlInfo = {
-    Option( gcsStorage.get( GcsUrlConnection.toBlobId( url ) ) )
+    Option( storage.get( GcsUrlConnection.toBlobId( url ) ) )
       .map { blob =>
         GcsIvyUrlInfo(
           available = true,
