@@ -22,12 +22,12 @@ scmInfo := Some(
 )
 
 lazy val sbt1PluginScalaVersion = "2.12.21"
-lazy val sbt2PluginScalaVersion = "3.8.1"
+lazy val sbt2PluginScalaVersion = "3.8.4"
 
 crossScalaVersions := Seq( sbt1PluginScalaVersion, sbt2PluginScalaVersion )
 
 libraryDependencies ++= Seq(
-  "com.google.cloud" % "google-cloud-storage" % "2.69.0"
+  "com.google.cloud" % "google-cloud-storage" % "2.70.0"
 )
 
 sbtPlugin := true
@@ -37,7 +37,7 @@ enablePlugins( SbtPlugin, GitVersioning )
 ( pluginCrossBuild / sbtVersion ) := {
   scalaBinaryVersion.value match {
     case "2.12" => "1.12.3"
-    case _      => "2.0.0-RC9"
+    case _      => "2.0.3"
   }
 }
 
