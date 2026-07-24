@@ -73,14 +73,14 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
         val event = new CopyProgressEvent()
         Option( l ).foreach( _.start( event ) )
         gcsPublishFilePolicy match {
-          case GcsPublishFilePolicy.PublicAccess ⇒
+          case GcsPublishFilePolicy.PublicAccess =>
             gcsBucket.create(
               destination,
               new FileInputStream( src ),
               getContentType( dest ),
               BlobWriteOption.predefinedAcl( Storage.PredefinedAcl.PUBLIC_READ )
             )
-          case GcsPublishFilePolicy.InheritedFromBucket ⇒
+          case GcsPublishFilePolicy.InheritedFromBucket =>
             gcsBucket.create(
               destination,
               new FileInputStream( src ),
@@ -113,12 +113,12 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
 
   private def getContentType( url: URL ): String = {
     url.getPath.takeRight( 4 ).toLowerCase match {
-      case ".jar"  ⇒ "application/java-archive"
-      case ".xml"  ⇒ "application/xml"
-      case ".sha1" ⇒ "text/plain"
-      case ".md5"  ⇒ "text/plain"
-      case ".ivy"  ⇒ "application/xml"
-      case _      => "application/octet-stream"
+      case ".jar"  => "application/java-archive"
+      case ".xml"  => "application/xml"
+      case ".sha1" => "text/plain"
+      case ".md5"  => "text/plain"
+      case ".ivy"  => "application/xml"
+      case _       => "application/octet-stream"
     }
   }
 

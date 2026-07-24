@@ -10,7 +10,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - java: 8
+        - java: 21
           os: ubuntu-latest
         - java: 25
           os: ubuntu-latest
@@ -19,8 +19,11 @@ jobs:
     - uses: actions/setup-java@v5
       with:
         java-version: ${{ matrix.java }}
-        distribution: zulu
+        distribution: temurin
     - uses: sbt/setup-sbt@v1
-    - run: sbt -v scalafmtSbtCheck scalafmtCheckAll
-    - run: sbt -v scalafmtSbtCheck scalafmtCheckAll Test/compile test
+    - run: sbt scalafmtSbtCheck
+      working-directory: ./sbt-gcs-plugin
+    - run: sbt scalafmtCheckAll
+      working-directory: ./sbt-gcs-plugin
+    - run: sbt test
       working-directory: ./sbt-gcs-plugin

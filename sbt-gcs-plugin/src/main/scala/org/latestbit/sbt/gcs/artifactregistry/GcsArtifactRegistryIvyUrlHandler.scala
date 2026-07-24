@@ -114,12 +114,12 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
 
   private def getContentType( url: URL ): String = {
     url.getPath.takeRight( 4 ).toLowerCase match {
-      case ".jar"  ⇒ "application/java-archive"
-      case ".xml"  ⇒ "application/xml"
-      case ".sha1" ⇒ "text/plain"
-      case ".md5"  ⇒ "text/plain"
-      case ".ivy"  ⇒ "application/xml"
-      case _      => "application/octet-stream"
+      case ".jar"  => "application/java-archive"
+      case ".xml"  => "application/xml"
+      case ".sha1" => "text/plain"
+      case ".md5"  => "text/plain"
+      case ".ivy"  => "application/xml"
+      case _       => "application/octet-stream"
     }
   }
 }

@@ -8,40 +8,60 @@ homepage := Some( url( "http://latestbit.com" ) )
 
 licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
 
-val sbtPluginScalaVersion = "2.12.21"
+developers := List(
+  Developer( "abdulla", "Abdulla Abdurakhmanov", "me@abdolence.dev", url( "https://abdolence.dev" ) )
+)
+
+startYear := Some( 2021 )
+
+scmInfo := Some(
+  ScmInfo(
+    url( "https://github.com/abdolence/sbt-gcs-resolver" ),
+    "scm:git:git@github.com:abdolence/sbt-gcs-resolver.git"
+  )
+)
+
+lazy val sbt1PluginScalaVersion = "2.12.21"
+lazy val sbt2PluginScalaVersion = "3.8.1"
+
+crossScalaVersions := Seq( sbt1PluginScalaVersion, sbt2PluginScalaVersion )
 
 libraryDependencies ++= Seq(
-  "org.scala-lang"   % "scala-library"        % scalaVersion.value,
-  "org.scala-lang"   % "scala-reflect"        % scalaVersion.value,
-  "org.scala-lang"   % "scala-compiler"       % scalaVersion.value,
   "com.google.cloud" % "google-cloud-storage" % "2.69.0"
 )
 
 sbtPlugin := true
 
-enablePlugins( GitVersioning )
+enablePlugins( SbtPlugin, GitVersioning )
 
-scalaVersion := ( CrossVersion partialVersion ( pluginCrossBuild / sbtVersion ).value match {
-  case Some( ( 1, _ ) ) => sbtPluginScalaVersion
-  case _                => sys error s"Unhandled sbt version ${( pluginCrossBuild / sbtVersion ).value}"
-} )
+( pluginCrossBuild / sbtVersion ) := {
+  scalaBinaryVersion.value match {
+    case "2.12" => "1.12.3"
+    case _      => "2.0.0-RC9"
+  }
+}
 
 publishMavenStyle := true
 
-import xerial.sbt.Sonatype.sonatypeCentralHost
+publishTo := {
+  if ( version.value.endsWith( "-SNAPSHOT" ) ) {
+    Some( "central-snapshots" at "https://central.sonatype.com/repository/maven-snapshots/" )
+  } else {
+    localStaging.value
+  }
+}
 
-ThisBuild / sonatypeCredentialHost := sonatypeCentralHost
+credentials += Credentials( Path.userHome / ".sbt" / ".credentials" )
 
-ThisBuild / publishTo := sonatypePublishToBundle.value
+sbtPluginPublishLegacyMavenStyle := false
 
-ThisBuild / sbtPluginPublishLegacyMavenStyle := false
-
-pomExtra := (
-  <developers>
-      <developer>
-        <id>abdulla</id>
-        <name>Abdulla Abdurakhmanov</name>
-        <url>http://abdolence.dev</url>
-      </developer>
-    </developers>
-)
+scalacOptions ++= {
+  scalaBinaryVersion.value match {
+    case "2.12" =>
+      Seq(
+        "-release:8"
+      )
+    case "3" =>
+      Nil
+  }
+}

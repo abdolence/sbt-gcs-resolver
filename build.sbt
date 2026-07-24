@@ -1,23 +1,10 @@
-import org.latestbit.sbt.gcs.GcsPublishFilePolicy
+organization := "org.latestbit"
 
-ThisBuild / organization := "org.latestbit"
+homepage := Some( url( "http://latestbit.com" ) )
 
-ThisBuild / homepage := Some( url( "http://latestbit.com" ) )
+licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
 
-ThisBuild / licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
-
-ThisBuild / scalaVersion := "2.12.21"
-
-ThisBuild / scalacOptions ++= Seq(
-  "-encoding",
-  "UTF-8",
-  "-Xlog-reflective-calls",
-  "-Xlint",
-  "-deprecation",
-  "-feature",
-  "-language:_",
-  "-unchecked"
-)
+scalaVersion := "3.8.1"
 
 lazy val sbtGcsPlaygroundToPublish = project
   .in( file( "playground-publish" ) )
@@ -65,10 +52,6 @@ lazy val sbtGcsArtifactRepositoryPlaygroundToResolve = project
     logLevel := Level.Debug
   )
 
-lazy val plugin = project
-  .in( file( "sbt-gcs-plugin" ) )
-  .enablePlugins( GitVersioning )
-
 lazy val sbtGcsRoot = project
   .in( file( "." ) )
   .settings(
@@ -79,6 +62,6 @@ lazy val sbtGcsRoot = project
     publishArtifact    := false,
     logLevel           := Level.Debug
   )
-  .aggregate( sbtGcsPlaygroundToPublish )
+  .aggregate( sbtGcsPlaygroundToPublish, sbtGcsPlaygroundToResolve, sbtGcsArtifactRepositoryPlaygroundToPublish, sbtGcsArtifactRepositoryPlaygroundToResolve )
 
-Global / gcsPublishFilePolicy := GcsPublishFilePolicy.InheritedFromBucket
+Global / gcsPublishFilePolicy := org.latestbit.sbt.gcs.GcsPublishFilePolicy.InheritedFromBucket
