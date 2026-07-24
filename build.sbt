@@ -4,7 +4,7 @@ homepage := Some( url( "http://latestbit.com" ) )
 
 licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
 
-scalaVersion := "3.8.1"
+scalaVersion := "3.8.4"
 
 lazy val sbtGcsPlaygroundToPublish = project
   .in( file( "playground-publish" ) )
