@@ -27,7 +27,8 @@ lazy val sbt2PluginScalaVersion = "3.8.4"
 crossScalaVersions := Seq( sbt1PluginScalaVersion, sbt2PluginScalaVersion )
 
 libraryDependencies ++= Seq(
-  "com.google.cloud" % "google-cloud-storage" % "2.74.0"
+  "com.google.cloud" % "google-cloud-storage" % "2.74.0",
+  "org.scalameta"   %% "munit"                % "1.3.6" % Test
 )
 
 sbtPlugin := true
