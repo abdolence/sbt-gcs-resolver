@@ -18,7 +18,8 @@ package org.latestbit.sbt.gcs
 import com.google.api.client.http.HttpRequestFactory
 import com.google.api.client.http.javanet.NetHttpTransport
 import com.google.auth.http.{ HttpCredentialsAdapter, HttpTransportFactory }
-import com.google.auth.oauth2.{ AccessToken, GoogleCredentials }
+import com.google.auth.Credentials
+import com.google.auth.oauth2.{ AccessToken, GoogleAuthUtils, GoogleCredentials, ServiceAccountCredentials }
 import com.google.common.collect.ImmutableList
 import com.google.cloud.storage.StorageOptions
 import org.apache.ivy.util.url.{ URLHandlerDispatcher, URLHandlerRegistry }
@@ -26,9 +27,8 @@ import org.latestbit.sbt.gcs.artifactregistry.{ GcsArtifactRegistryIvyUrlHandler
 import org.latestbit.sbt.gcs.gs.{ GcsIvyUrlHandler, GcsUrlHandler }
 import sbt.{ File, Logger }
 
-import java.io.FileInputStream
 import java.net.{ URI, URL }
-import java.nio.file.Path
+import java.nio.file.{ Files, Path, Paths }
 import scala.collection.JavaConverters._
 import scala.util.Try
 
@@ -42,16 +42,25 @@ object GcsUrlHandlerFactory {
       googleCredentialsDisable: Boolean,
       gcsPublishFilePolicy: GcsPublishFilePolicy
   )( implicit logger: Logger ) = {
-    lazy val credentials: Option[GoogleCredentials] =
+    lazy val credentials: Option[ReloadingCredentials] =
       if ( googleCredentialsDisable ) {
         logger.debug( s"Google Application Default Credentials lookup is disabled" )
         None
       } else {
-        Some( loadGoogleCredentials( googleCredentialsFile.map( _.toPath ) ) )
+        Some( new ReloadingCredentials( () => loadGoogleCredentials( googleCredentialsFile.map( _.toPath ) ) ) )
       }
     lazy val gcsStorage = {
       val builder = StorageOptions.newBuilder()
-      credentials.foreach( builder.setCredentials( _ ) )
+      credentials.foreach { creds =>
+        builder.setCredentials( creds )
+        // StorageOptions infers the project only from the concrete credential types, which the wrapper hides; without
+        // it the options fall back to probing the GCE metadata server.
+        creds.delegate match {
+          case serviceAccount: ServiceAccountCredentials =>
+            Option( serviceAccount.getProjectId ).foreach( builder.setProjectId )
+          case _ =>
+        }
+      }
       builder.build().getService
     }
     lazy val googleHttpRequestFactory = createHttpRequestFactory( credentials )
@@ -95,9 +104,7 @@ object GcsUrlHandlerFactory {
       .orElse( lookupGoogleCredentialsInSbtDir() )
       .map { path =>
         logger.debug( s"Loading Google credentials from: ${path.toAbsolutePath.toString}" )
-        GoogleCredentials
-          .fromStream( new FileInputStream( path.toFile ) )
-          .createScoped( scopes )
+        readCredentialsFile( path ).createScoped( scopes )
       }
       .orElse {
         Option( System.getenv( "GOOGLE_OAUTH_ACCESS_TOKEN" ) ).map( accessToken =>
@@ -108,8 +115,46 @@ object GcsUrlHandlerFactory {
       }
       .getOrElse {
         logger.debug( s"Loading default Google credentials" )
-        GoogleCredentials.getApplicationDefault().createScoped( scopes )
+        loadApplicationDefaultCredentials().createScoped( scopes )
       }
+  }
+
+  /** Application Default Credentials, read afresh on every call.
+    *
+    * `GoogleCredentials.getApplicationDefault` keeps its first result for the life of the JVM, so a later
+    * `gcloud auth application-default login` would never be seen. The two file sources are read here in the library's
+    * order: the file named by `GOOGLE_APPLICATION_CREDENTIALS`, then the gcloud well-known file, with
+    * `GOOGLE_CLOUD_QUOTA_PROJECT` applied as the library does. Without either file the library resolves the rest (App
+    * Engine, Cloud Shell, the GCE metadata server), whose credentials refresh themselves.
+    *
+    * `wellKnownFile` is evaluated only when `GOOGLE_APPLICATION_CREDENTIALS` is unset or empty: resolving the gcloud
+    * path throws on Windows when `APPDATA` is unset.
+    */
+  private[gcs] def loadApplicationDefaultCredentials(
+      getenv: String => Option[String] = sys.env.get,
+      wellKnownFile: => Path = Paths.get( GoogleAuthUtils.getWellKnownCredentialsPath )
+  ): GoogleCredentials = {
+    val credentialsFile = getenv( "GOOGLE_APPLICATION_CREDENTIALS" )
+      .filter( _.nonEmpty )
+      .map( Paths.get( _ ) )
+      .orElse( Some( wellKnownFile ).filter( Files.isRegularFile( _ ) ) )
+
+    credentialsFile match {
+      case Some( path ) =>
+        val credentials = readCredentialsFile( path )
+        getenv( "GOOGLE_CLOUD_QUOTA_PROJECT" ).map( _.trim ).filter( _.nonEmpty ) match {
+          case Some( quotaProject ) => credentials.createWithQuotaProject( quotaProject )
+          case None                 => credentials
+        }
+      case None =>
+        GoogleCredentials.getApplicationDefault()
+    }
+  }
+
+  private def readCredentialsFile( path: Path ): GoogleCredentials = {
+    val stream = Files.newInputStream( path )
+    try GoogleCredentials.fromStream( stream )
+    finally stream.close()
   }
 
   private def lookupGoogleCredentialsInSbtDir(): Option[Path] = {
@@ -135,7 +180,7 @@ object GcsUrlHandlerFactory {
     new NetHttpTransport()
   }
 
-  private def createHttpRequestFactory( credentials: Option[GoogleCredentials] ): HttpRequestFactory = {
+  private def createHttpRequestFactory( credentials: Option[Credentials] ): HttpRequestFactory = {
     val httpTransport = httpTransportFactory.create()
     credentials
       .map { creds =>
