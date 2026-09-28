@@ -19,12 +19,12 @@ Add this to your `project/plugins.sbt`:
 
 For sbt 1.x:
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "1.18.0")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
 ```
 
 For sbt 2.x:
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.0.0")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
 ```
 
 ### GCS publishing
