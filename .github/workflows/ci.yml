@@ -25,5 +25,5 @@ jobs:
       working-directory: ./sbt-gcs-plugin
     - run: sbt scalafmtCheckAll
       working-directory: ./sbt-gcs-plugin
-    - run: sbt test
+    - run: sbt +testFull
       working-directory: ./sbt-gcs-plugin
