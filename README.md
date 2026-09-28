@@ -91,6 +91,31 @@ The example how to use with GitHub Actions is:
       access_token_lifetime: '240s'
 ```
 
+### Short-lived credentials
+When the current credentials can no longer get an access token, the plugin loads them again using the same lookup order and retries once.
+This happens when Google refuses to issue a token, e.g. for an expired or revoked refresh token, or when refreshing the token after a `401` response fails.
+Network errors are reported as they are, without loading the credentials again.
+
+So there is no need to restart sbt after:
+- `gcloud auth application-default login`, when your organization limits the lifetime of user credentials;
+- replacing the credentials file, for example a rotated service account key.
+
+After changing `googleCredentialsFile` or `googleCredentialsDisable` in the build, you need to restart sbt, `reload` is not enough.
+
+Be aware that `GOOGLE_OAUTH_ACCESS_TOKEN` is a static token and the plugin cannot refresh it.
+When it expires, you need to export a new one and restart sbt.
+
+### Custom credentials flows
+Custom flows are configured with a credentials file, specified with `googleCredentialsFile` or `GOOGLE_APPLICATION_CREDENTIALS`.
+The Google client for Java supports these file types:
+- `external_account` for Workload Identity Federation, including executable-sourced credentials (requires `GOOGLE_EXTERNAL_ACCOUNT_ALLOW_EXECUTABLES=1`);
+- `impersonated_service_account` to act as a service account using your own credentials.
+
+`gcloud` can generate them, e.g. `gcloud iam workload-identity-pools create-cred-config` or
+`gcloud auth application-default login --impersonate-service-account=<service-account-email>`.
+
+Full details available here: https://github.com/googleapis/google-auth-library-java
+
 ### No credentials mode
 If you want to access publicly available buckets/registries without any authentication you can disable credentials loading using:
 ```
