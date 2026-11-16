@@ -22,7 +22,7 @@ scmInfo := Some(
 )
 
 lazy val sbt1PluginScalaVersion = "2.12.21"
-lazy val sbt2PluginScalaVersion = "3.8.4"
+lazy val sbt2PluginScalaVersion = "3.9.0"
 
 crossScalaVersions := Seq( sbt1PluginScalaVersion, sbt2PluginScalaVersion )
 
@@ -38,7 +38,7 @@ enablePlugins( SbtPlugin, GitVersioning )
 ( pluginCrossBuild / sbtVersion ) := {
   scalaBinaryVersion.value match {
     case "2.12" => "1.12.3"
-    case _      => "2.0.3"
+    case _      => "2.1.0"
   }
 }
 

@@ -27,6 +27,9 @@ import scala.util.{ Failure, Success, Try }
 object GcsPlugin extends AutoPlugin {
   override def trigger = allRequirements
 
+  // The project settings extend `otherResolvers` and `publisher`, so they must come after JvmPlugin's.
+  override def requires = plugins.JvmPlugin
+
   object autoImport extends GcsPluginKeys
   import autoImport._
 
@@ -40,15 +43,16 @@ object GcsPlugin extends AutoPlugin {
     ( Global / onLoad ) := ( Global / onLoad ).value.andThen { state =>
       implicit val logger: Logger = state.log
       Try {
-        GcsUrlHandlerFactory.install(
+        val clients = GcsUrlHandlerFactory.install(
           googleCredentialsFile = googleCredentialsFile.value,
-          googleCredentialsDisable = googleCredentialsDisable.value,
-          gcsPublishFilePolicy = gcsPublishFilePolicy.value
+          googleCredentialsDisable = googleCredentialsDisable.value
         )
+        val installed = GcsPublishing.install( state, clients, gcsPublishFilePolicy.value )
         logger.info( s"Google GCS/Artifact Registry support is enabled." )
+        installed
       } match {
-        case Success( _ )   => state
-        case Failure( err ) => {
+        case Success( installed ) => installed
+        case Failure( err )       => {
           logger.err(
             s"Unable to install GCS/Artifact Registry URL handlers: ${err}. Publishing/resolving artifacts from GCP is disabled."
           )
@@ -59,4 +63,6 @@ object GcsPlugin extends AutoPlugin {
   )
 
   override def globalSettings: Seq[Setting[_]] = gcsPluginTaskInits ++ gcsPluginDefaultSettings ++ super.globalSettings
+
+  override def projectSettings: Seq[Setting[_]] = GcsPublishing.projectSettings ++ super.projectSettings
 }
