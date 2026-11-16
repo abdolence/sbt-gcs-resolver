@@ -28,7 +28,7 @@ import scala.util.{ Failure, Success, Try }
   * publishes there, so the layout, cross-version names and checksums stay sbt's own, and the plugin then uploads the
   * staged files.
   */
-private[gcs] object GcsPublishing {
+object GcsPublishing {
 
   private val googleClients = AttributeKey[Try[GoogleCloudClients]](
     "gcsGoogleClients",

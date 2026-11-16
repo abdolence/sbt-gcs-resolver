@@ -21,7 +21,7 @@ import org.latestbit.sbt.gcs.gs.GcsIvyUrlHandler
 import sbt._
 
 /** Publishing on sbt 1, where Ivy uploads through the URL handler registered for each scheme. */
-private[gcs] object GcsPublishing {
+object GcsPublishing {
 
   def install( state: State, clients: GoogleCloudClients, gcsPublishFilePolicy: GcsPublishFilePolicy ): State = {
     implicit val logger: Logger = state.log

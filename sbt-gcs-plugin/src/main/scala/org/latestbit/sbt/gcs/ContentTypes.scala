@@ -15,7 +15,7 @@
  */
 package org.latestbit.sbt.gcs
 
-private[gcs] object ContentTypes {
+object ContentTypes {
 
   def forPath( path: String ): String =
     path.substring( path.lastIndexOf( '.' ) + 1 ).toLowerCase match {

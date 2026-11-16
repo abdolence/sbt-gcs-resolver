@@ -47,7 +47,7 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
   override def getURLInfo( url: URL, timeout: Int ): URLHandler.URLInfo = getURLInfo( url )
 
   override def openStream( url: URL ): InputStream = {
-    Option( storage.get( GcsUrlConnection.toBlobId( url.getHost, url.getPath ) ) ).map { blob =>
+    Option( storage.get( GcsUrlConnection.toBlobId( url ) ) ).map { blob =>
       Channels.newInputStream( blob.reader() )
     }.orNull
   }
@@ -55,7 +55,7 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
   override def download( src: URL, dest: File, l: CopyProgressListener ): Unit = {
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )
-    Option( storage.get( GcsUrlConnection.toBlobId( src.getHost, src.getPath ) ) )
+    Option( storage.get( GcsUrlConnection.toBlobId( src ) ) )
       .foreach { blob =>
         blob.downloadTo( dest.toPath )
       }
@@ -98,7 +98,7 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
   override def setRequestMethod( requestMethod: Int ): Unit = ()
 
   private def urlToGcsIvyUrlInfo( url: URL ): GcsIvyUrlInfo = {
-    Option( storage.get( GcsUrlConnection.toBlobId( url.getHost, url.getPath ) ) )
+    Option( storage.get( GcsUrlConnection.toBlobId( url ) ) )
       .map { blob =>
         GcsIvyUrlInfo(
           available = true,

@@ -26,11 +26,11 @@ import scala.util.Try
 /** A repository is rooted at the path of its resolver's URL, `rootPath`, without a trailing `/`. A published file is
   * addressed by its path relative to the root, such as `org/latestbit/foo_3/1.0/foo_3-1.0.pom`.
   */
-private[gcs] sealed trait GcsMavenRepository {
+sealed trait GcsMavenRepository {
   def location( path: String ): String
 }
 
-private[gcs] object GcsMavenRepository {
+object GcsMavenRepository {
 
   /** `gs://<name><rootPath>` */
   final case class Bucket( name: String, rootPath: String ) extends GcsMavenRepository {

@@ -17,9 +17,13 @@ package org.latestbit.sbt.gcs.artifactregistry
 
 import com.google.api.client.http.GenericUrl
 
+import java.net.URL
+
 object GcsArtifactRegistryGenericUrlFactory {
 
-  private[gcs] def create( host: String, path: String ): GenericUrl = {
+  def createFromUrl( srcUrl: URL ): GenericUrl = create( srcUrl.getHost, srcUrl.getPath )
+
+  def create( host: String, path: String ): GenericUrl = {
     val genericUrl = new GenericUrl()
     genericUrl.setScheme( "https" )
     genericUrl.setHost( host )

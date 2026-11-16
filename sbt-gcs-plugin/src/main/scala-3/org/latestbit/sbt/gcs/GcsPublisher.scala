@@ -35,7 +35,7 @@ import java.io.{ File, IOException }
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-private[gcs] final case class GcsPublishTarget(
+final case class GcsPublishTarget(
     resolverName: String,
     repository: GcsMavenRepository,
     stagingDir: File
@@ -43,7 +43,7 @@ private[gcs] final case class GcsPublishTarget(
   def stagingResolver: Resolver = MavenCache( s"$resolverName (GCS staging)", stagingDir )
 }
 
-private[gcs] object GcsPublishTarget {
+object GcsPublishTarget {
 
   def of( resolver: Resolver, stagingDir: File ): Option[GcsPublishTarget] = resolver match {
     case repository: MavenRepository =>
@@ -53,7 +53,7 @@ private[gcs] object GcsPublishTarget {
 }
 
 /** The files at `locations` exist and the publish configuration does not overwrite them; nothing was uploaded. */
-private[gcs] final class AlreadyPublished( val locations: Seq[String] )
+final class AlreadyPublished( val locations: Seq[String] )
     extends IOException(
       s"Already published, and overwriting is disabled: ${locations.mkString( ", " )}\n\t" +
         "Publish a new version, or relax the setting as follows:\n\t" +
@@ -63,7 +63,7 @@ private[gcs] final class AlreadyPublished( val locations: Seq[String] )
 /** `clients` is the outcome of creating the Google clients when sbt loaded the build. A failure is reported when a
   * publish to `target` is attempted, not on loading.
   */
-private[gcs] final class GcsPublisher(
+final class GcsPublisher(
     delegate: Publisher,
     target: GcsPublishTarget,
     clients: Try[GoogleCloudClients],

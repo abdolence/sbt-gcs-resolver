@@ -23,7 +23,7 @@ import com.google.cloud.storage.Storage
   * The arguments are evaluated on every access, so the caller passes lazily created, memoised clients: creating them
   * loads credentials.
   */
-private[gcs] final class GoogleCloudClients(
+final class GoogleCloudClients(
     createStorage: => Storage,
     createHttpRequestFactory: => HttpRequestFactory
 ) {

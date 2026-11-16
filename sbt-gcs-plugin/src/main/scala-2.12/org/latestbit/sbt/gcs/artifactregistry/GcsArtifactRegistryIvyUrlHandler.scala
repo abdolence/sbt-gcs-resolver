@@ -44,7 +44,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
   override def getLastModified( url: URL, timeout: Int ): Long = getLastModified( url )
 
   override def getURLInfo( url: URL ): URLHandler.URLInfo = {
-    val genericUrl   = GcsArtifactRegistryGenericUrlFactory.create( url.getHost, url.getPath )
+    val genericUrl   = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
     val httpRequest  = factory.buildHeadRequest( genericUrl ).setThrowExceptionOnExecuteError( false )
     val httpResponse = httpRequest.execute()
     GcsArtifactRegistryIvyUrlInfo(
@@ -60,7 +60,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
   override def getURLInfo( url: URL, timeout: Int ): URLHandler.URLInfo = getURLInfo( url )
 
   override def openStream( url: URL ): InputStream = {
-    val genericUrl   = GcsArtifactRegistryGenericUrlFactory.create( url.getHost, url.getPath )
+    val genericUrl   = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
     val httpRequest  = factory.buildGetRequest( genericUrl )
     val httpResponse = httpRequest.execute()
     httpResponse.getContent
@@ -69,7 +69,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
   override def download( src: URL, dest: File, l: CopyProgressListener ): Unit = {
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )
-    val genericUrl   = GcsArtifactRegistryGenericUrlFactory.create( src.getHost, src.getPath )
+    val genericUrl   = GcsArtifactRegistryGenericUrlFactory.createFromUrl( src )
     val httpRequest  = googleHttpRequestFactory.buildGetRequest( genericUrl )
     val httpResponse = httpRequest.execute()
     httpResponse.download( Files.newOutputStream( dest.toPath ) )
@@ -82,7 +82,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
     )
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )
-    val genericUrl  = GcsArtifactRegistryGenericUrlFactory.create( dest.getHost, dest.getPath )
+    val genericUrl  = GcsArtifactRegistryGenericUrlFactory.createFromUrl( dest )
     val contentType = ContentTypes.forPath( dest.getPath )
 
     val httpRequest = googleHttpRequestFactory.buildPutRequest(

@@ -36,7 +36,7 @@ object GcsUrlHandlerFactory {
   /** Registers gs:// and artifactregistry:// URL handlers unconditionally and returns the clients for publishing.
     * Credentials are loaded lazily on the first actual network request.
     */
-  private[gcs] def install(
+  def install(
       googleCredentialsFile: Option[File],
       googleCredentialsDisable: Boolean
   )( implicit logger: Logger ): GoogleCloudClients = {
