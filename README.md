@@ -8,8 +8,11 @@ Features:
 - Ability to configure Google Credentials using sbt settings
 
 ## SBT versions support
-1. sbt v2.x+
+1. sbt v2.1+
 2. sbt v1.x+
+
+Plugin versions after 2.1.0 require sbt 2.1 or later on sbt 2.
+On sbt 2.0.x, stay on plugin version 2.1.0.
 
 ## Usage
 
@@ -22,7 +25,12 @@ For sbt 1.x:
 addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
 ```
 
-For sbt 2.x:
+For sbt 2.1+:
+```scala
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
+```
+
+For sbt 2.0.x:
 ```scala
 addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
 ```
