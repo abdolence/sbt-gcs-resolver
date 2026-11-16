@@ -19,7 +19,7 @@ import com.google.cloud.storage.Bucket.BlobWriteOption
 import com.google.cloud.storage.Storage
 import org.apache.ivy.util.url.URLHandler
 import org.apache.ivy.util.{ CopyProgressEvent, CopyProgressListener }
-import org.latestbit.sbt.gcs.GcsPublishFilePolicy
+import org.latestbit.sbt.gcs.{ ContentTypes, GcsPublishFilePolicy }
 import sbt.Logger
 
 import java.io.{ File, FileInputStream, InputStream }
@@ -47,7 +47,7 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
   override def getURLInfo( url: URL, timeout: Int ): URLHandler.URLInfo = getURLInfo( url )
 
   override def openStream( url: URL ): InputStream = {
-    Option( storage.get( GcsUrlConnection.toBlobId( url ) ) ).map { blob =>
+    Option( storage.get( GcsUrlConnection.toBlobId( url.getHost, url.getPath ) ) ).map { blob =>
       Channels.newInputStream( blob.reader() )
     }.orNull
   }
@@ -55,7 +55,7 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
   override def download( src: URL, dest: File, l: CopyProgressListener ): Unit = {
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )
-    Option( storage.get( GcsUrlConnection.toBlobId( src ) ) )
+    Option( storage.get( GcsUrlConnection.toBlobId( src.getHost, src.getPath ) ) )
       .foreach { blob =>
         blob.downloadTo( dest.toPath )
       }
@@ -77,14 +77,14 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
             gcsBucket.create(
               destination,
               new FileInputStream( src ),
-              getContentType( dest ),
+              ContentTypes.forPath( dest.getPath ),
               BlobWriteOption.predefinedAcl( Storage.PredefinedAcl.PUBLIC_READ )
             )
           case GcsPublishFilePolicy.InheritedFromBucket =>
             gcsBucket.create(
               destination,
               new FileInputStream( src ),
-              getContentType( dest )
+              ContentTypes.forPath( dest.getPath )
             )
         }
         Option( l ).foreach( _.end( event ) )
@@ -98,7 +98,7 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
   override def setRequestMethod( requestMethod: Int ): Unit = ()
 
   private def urlToGcsIvyUrlInfo( url: URL ): GcsIvyUrlInfo = {
-    Option( storage.get( GcsUrlConnection.toBlobId( url ) ) )
+    Option( storage.get( GcsUrlConnection.toBlobId( url.getHost, url.getPath ) ) )
       .map { blob =>
         GcsIvyUrlInfo(
           available = true,
@@ -109,17 +109,6 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
       .getOrElse {
         GcsIvyUrlInfo( available = false, contentLength = 0, lastModified = 0 )
       }
-  }
-
-  private def getContentType( url: URL ): String = {
-    url.getPath.takeRight( 4 ).toLowerCase match {
-      case ".jar"  => "application/java-archive"
-      case ".xml"  => "application/xml"
-      case ".sha1" => "text/plain"
-      case ".md5"  => "text/plain"
-      case ".ivy"  => "application/xml"
-      case _       => "application/octet-stream"
-    }
   }
 
   private case class GcsIvyUrlInfo( available: Boolean, contentLength: Long, lastModified: Long )

@@ -32,7 +32,7 @@ import scala.util.control.NonFatal
 class GcsArtifactRegistryUrlConnection( googleHttpRequestFactory: HttpRequestFactory, url: URL )( implicit
     logger: Logger
 ) extends HttpURLConnection( url ) {
-  private final val genericUrl                        = GcsArtifactRegistryGenericUrlFactory.createFromUrl( url )
+  private final val genericUrl = GcsArtifactRegistryGenericUrlFactory.create( url.getHost, url.getPath )
   private final var connectedWithHeaders: HttpHeaders = new HttpHeaders()
   private var inputStreamIsReady: Option[InputStream] = None
 

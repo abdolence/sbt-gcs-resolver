@@ -18,11 +18,15 @@ package org.latestbit.sbt.gcs
 import com.google.api.client.http.HttpRequestFactory
 import com.google.cloud.storage.Storage
 
-/** The clients of one sbt load for GCS and for Artifact Registry, each created on first use. */
+/** The clients for GCS and for Artifact Registry.
+  *
+  * The arguments are evaluated on every access, so the caller passes lazily created, memoised clients: creating them
+  * loads credentials.
+  */
 private[gcs] final class GoogleCloudClients(
     createStorage: => Storage,
     createHttpRequestFactory: => HttpRequestFactory
 ) {
-  lazy val storage: Storage                       = createStorage
-  lazy val httpRequestFactory: HttpRequestFactory = createHttpRequestFactory
+  def storage: Storage                       = createStorage
+  def httpRequestFactory: HttpRequestFactory = createHttpRequestFactory
 }

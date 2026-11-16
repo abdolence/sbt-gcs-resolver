@@ -24,7 +24,7 @@ import java.nio.channels.Channels
 
 class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger ) extends HttpURLConnection( url ) {
   private val bucketName = url.getHost
-  private val blobId     = GcsUrlConnection.toBlobId( url )
+  private val blobId     = GcsUrlConnection.toBlobId( url.getHost, url.getPath )
 
   private var bucket: Option[Bucket] = None
   private var blob: Option[Blob]     = None
@@ -75,8 +75,7 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
 
 object GcsUrlConnection {
 
-  def toBlobId( url: URL ): BlobId = {
-    val bucketName = url.getHost
-    BlobId.of( bucketName, url.getPath.drop( 1 ) )
-  }
+  /** `objectPath` is a URL path, so its leading `/` is not part of the object name. */
+  private[gcs] def toBlobId( bucketName: String, objectPath: String ): BlobId =
+    BlobId.of( bucketName, objectPath.stripPrefix( "/" ) )
 }

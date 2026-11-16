@@ -40,5 +40,7 @@ private[gcs] object GcsPublishing {
     state
   }
 
+  def loadFailed( state: State, failure: Throwable ): State = state
+
   val projectSettings: Seq[Setting[_]] = Nil
 }

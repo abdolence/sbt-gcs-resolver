@@ -47,16 +47,16 @@ object GcsPlugin extends AutoPlugin {
           googleCredentialsFile = googleCredentialsFile.value,
           googleCredentialsDisable = googleCredentialsDisable.value
         )
-        val installed = GcsPublishing.install( state, clients, gcsPublishFilePolicy.value )
+        val publishingState = GcsPublishing.install( state, clients, gcsPublishFilePolicy.value )
         logger.info( s"Google GCS/Artifact Registry support is enabled." )
-        installed
+        publishingState
       } match {
-        case Success( installed ) => installed
-        case Failure( err )       => {
+        case Success( publishingState ) => publishingState
+        case Failure( err )             => {
           logger.err(
             s"Unable to install GCS/Artifact Registry URL handlers: ${err}. Publishing/resolving artifacts from GCP is disabled."
           )
-          state
+          GcsPublishing.loadFailed( state, err )
         }
       }
     }

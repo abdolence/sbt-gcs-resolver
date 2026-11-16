@@ -17,15 +17,13 @@ package org.latestbit.sbt.gcs.artifactregistry
 
 import com.google.api.client.http.GenericUrl
 
-import java.net.URL
-
 object GcsArtifactRegistryGenericUrlFactory {
 
-  def createFromUrl( srcUrl: URL ): GenericUrl = {
+  private[gcs] def create( host: String, path: String ): GenericUrl = {
     val genericUrl = new GenericUrl()
     genericUrl.setScheme( "https" )
-    genericUrl.setHost( srcUrl.getHost )
-    genericUrl.appendRawPath( srcUrl.getPath )
+    genericUrl.setHost( host )
+    genericUrl.appendRawPath( path )
     genericUrl
   }
 }

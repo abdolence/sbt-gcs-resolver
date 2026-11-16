@@ -17,70 +17,43 @@ package org.latestbit.sbt.gcs
 
 import com.google.api.client.http.GenericUrl
 import com.google.cloud.storage.BlobId
+import org.latestbit.sbt.gcs.artifactregistry.GcsArtifactRegistryGenericUrlFactory
+import org.latestbit.sbt.gcs.gs.GcsUrlConnection
 
 import java.net.URI
-import java.nio.file.Path
-import scala.jdk.CollectionConverters._
 import scala.util.Try
 
-/** A file's path inside a Maven repository, such as `org/latestbit/foo_3/1.0/foo_3-1.0.pom`. */
-private[gcs] final case class MavenPath( segments: Vector[String] ) {
-
-  def isChecksum: Boolean = segments.last.endsWith( ".md5" ) || segments.last.endsWith( ".sha1" )
-
-  def contentType: String =
-    segments.last.drop( segments.last.lastIndexOf( '.' ) + 1 ).toLowerCase match {
-      case "jar"                  => "application/java-archive"
-      case "pom" | "xml"          => "application/xml"
-      case "md5" | "sha1" | "asc" => "text/plain"
-      case _                      => "application/octet-stream"
-    }
-
-  override def toString: String = segments.mkString( "/" )
-}
-
-/** A Maven repository root that sbt cannot publish to by itself: a GCS bucket or an Artifact Registry repository. */
+/** A repository is rooted at the path of its resolver's URL, `rootPath`, without a trailing `/`. A published file is
+  * addressed by its path relative to the root, such as `org/latestbit/foo_3/1.0/foo_3-1.0.pom`.
+  */
 private[gcs] sealed trait GcsMavenRepository {
-
-  /** Where `path` is published, for logs and errors. */
-  def location( path: MavenPath ): String
+  def location( path: String ): String
 }
 
 private[gcs] object GcsMavenRepository {
 
-  /** `gs://<name>/<prefix>` */
-  final case class Bucket( name: String, prefix: Vector[String] ) extends GcsMavenRepository {
-    def blobId( path: MavenPath ): BlobId = BlobId.of( name, ( prefix ++ path.segments ).mkString( "/" ) )
+  /** `gs://<name><rootPath>` */
+  final case class Bucket( name: String, rootPath: String ) extends GcsMavenRepository {
+    def blobId( path: String ): BlobId = GcsUrlConnection.toBlobId( name, s"$rootPath/$path" )
 
-    override def location( path: MavenPath ): String = s"gs://$name/${blobId( path ).getName}"
+    override def location( path: String ): String = s"gs://$name/${blobId( path ).getName}"
   }
 
-  /** `artifactregistry://<host>/<repository>`, served over HTTPS at the same host and path. */
-  final case class ArtifactRegistry( host: String, repository: Vector[String] ) extends GcsMavenRepository {
-    def url( path: MavenPath ): GenericUrl = {
-      val url = new GenericUrl()
-      url.setScheme( "https" )
-      url.setHost( host )
-      url.setPathParts( ( "" +: ( repository ++ path.segments ) ).asJava )
-      url
-    }
+  /** `artifactregistry://<host><rootPath>`, served over HTTPS at the same host and path. */
+  final case class ArtifactRegistry( host: String, rootPath: String ) extends GcsMavenRepository {
+    def url( path: String ): GenericUrl = GcsArtifactRegistryGenericUrlFactory.create( host, s"$rootPath/$path" )
 
-    override def location( path: MavenPath ): String = url( path ).build()
+    override def location( path: String ): String = url( path ).build()
   }
 
   /** The repository a resolver root names, or `None` for any other root. */
   def parse( root: String ): Option[GcsMavenRepository] =
     Try( new URI( root ) ).toOption.flatMap { uri =>
-      val segments = Option( uri.getPath ).toVector.flatMap( _.split( '/' ).toVector ).filter( _.nonEmpty )
+      val rootPath = Option( uri.getPath ).getOrElse( "" ).stripSuffix( "/" )
       ( Option( uri.getScheme ), Option( uri.getAuthority ) ) match {
-        case ( Some( "gs" ), Some( bucket ) )             => Some( Bucket( bucket, segments ) )
-        case ( Some( "artifactregistry" ), Some( host ) ) => Some( ArtifactRegistry( host, segments ) )
+        case ( Some( "gs" ), Some( bucket ) )             => Some( Bucket( bucket, rootPath ) )
+        case ( Some( "artifactregistry" ), Some( host ) ) => Some( ArtifactRegistry( host, rootPath ) )
         case _                                            => None
       }
     }
-}
-
-private[gcs] trait MavenRepositoryStore {
-  def exists( path: MavenPath ): Boolean
-  def upload( path: MavenPath, file: Path ): Unit
 }
