@@ -18,6 +18,7 @@ package org.latestbit.sbt.gcs.artifactregistry
 import com.google.api.client.http.{ HttpContent, HttpRequestFactory }
 import org.apache.ivy.util.url.URLHandler
 import org.apache.ivy.util.{ CopyProgressEvent, CopyProgressListener }
+import org.latestbit.sbt.gcs.ContentTypes
 import sbt.Logger
 
 import java.io.{ File, InputStream, OutputStream }
@@ -82,7 +83,7 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
     val event = new CopyProgressEvent()
     Option( l ).foreach( _.start( event ) )
     val genericUrl  = GcsArtifactRegistryGenericUrlFactory.createFromUrl( dest )
-    val contentType = getContentType( dest )
+    val contentType = ContentTypes.forPath( dest.getPath )
 
     val httpRequest = googleHttpRequestFactory.buildPutRequest(
       genericUrl,
@@ -111,15 +112,4 @@ class GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory: => HttpRequest
 
   private case class GcsArtifactRegistryIvyUrlInfo( available: Boolean, contentLength: Long, lastModified: Long )
       extends URLHandler.URLInfo( available, contentLength, lastModified )
-
-  private def getContentType( url: URL ): String = {
-    url.getPath.takeRight( 4 ).toLowerCase match {
-      case ".jar"  => "application/java-archive"
-      case ".xml"  => "application/xml"
-      case ".sha1" => "text/plain"
-      case ".md5"  => "text/plain"
-      case ".ivy"  => "application/xml"
-      case _       => "application/octet-stream"
-    }
-  }
 }

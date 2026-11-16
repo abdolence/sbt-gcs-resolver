@@ -21,11 +21,13 @@ import java.net.URL
 
 object GcsArtifactRegistryGenericUrlFactory {
 
-  def createFromUrl( srcUrl: URL ): GenericUrl = {
+  def createFromUrl( srcUrl: URL ): GenericUrl = create( srcUrl.getHost, srcUrl.getPath )
+
+  def create( host: String, path: String ): GenericUrl = {
     val genericUrl = new GenericUrl()
     genericUrl.setScheme( "https" )
-    genericUrl.setHost( srcUrl.getHost )
-    genericUrl.appendRawPath( srcUrl.getPath )
+    genericUrl.setHost( host )
+    genericUrl.appendRawPath( path )
     genericUrl
   }
 }

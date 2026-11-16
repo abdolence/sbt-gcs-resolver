@@ -8,8 +8,14 @@ Features:
 - Ability to configure Google Credentials using sbt settings
 
 ## SBT versions support
-1. sbt v2.x+
+1. sbt v2.1+
 2. sbt v1.x+
+
+Releases after 2.1.0 support sbt 1.x and sbt 2.1 or later.
+sbt 2.0.x needs plugin version 2.1.0.
+
+On sbt 2.1, publishing works for Maven resolvers (`"name" at "gs://..."` and `"name" at "artifactregistry://..."`).
+Ivy pattern resolvers (`Resolver.url(...)(Resolver.ivyStylePatterns)`) on these schemes are not supported for publishing there.
 
 ## Usage
 
@@ -17,12 +23,12 @@ Features:
 
 Add this to your `project/plugins.sbt`:
 
-For sbt 1.x:
+For sbt 1.x and sbt 2.1+:
 ```scala
-addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
+addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.2.0")
 ```
 
-For sbt 2.x:
+For sbt 2.0.x:
 ```scala
 addSbtPlugin("org.latestbit" % "sbt-gcs-plugin" % "2.1.0")
 ```

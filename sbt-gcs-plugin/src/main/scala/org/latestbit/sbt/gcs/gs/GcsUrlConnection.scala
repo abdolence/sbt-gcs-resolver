@@ -75,8 +75,9 @@ class GcsUrlConnection( gcsStorage: Storage, url: URL )( implicit logger: Logger
 
 object GcsUrlConnection {
 
-  def toBlobId( url: URL ): BlobId = {
-    val bucketName = url.getHost
-    BlobId.of( bucketName, url.getPath.drop( 1 ) )
-  }
+  def toBlobId( url: URL ): BlobId = toBlobId( url.getHost, url.getPath )
+
+  /** `objectPath` is a URL path, so its leading `/` is not part of the object name. */
+  def toBlobId( bucketName: String, objectPath: String ): BlobId =
+    BlobId.of( bucketName, objectPath.stripPrefix( "/" ) )
 }

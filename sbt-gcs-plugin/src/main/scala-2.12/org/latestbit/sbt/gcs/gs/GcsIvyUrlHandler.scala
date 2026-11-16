@@ -19,7 +19,7 @@ import com.google.cloud.storage.Bucket.BlobWriteOption
 import com.google.cloud.storage.Storage
 import org.apache.ivy.util.url.URLHandler
 import org.apache.ivy.util.{ CopyProgressEvent, CopyProgressListener }
-import org.latestbit.sbt.gcs.GcsPublishFilePolicy
+import org.latestbit.sbt.gcs.{ ContentTypes, GcsPublishFilePolicy }
 import sbt.Logger
 
 import java.io.{ File, FileInputStream, InputStream }
@@ -77,14 +77,14 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
             gcsBucket.create(
               destination,
               new FileInputStream( src ),
-              getContentType( dest ),
+              ContentTypes.forPath( dest.getPath ),
               BlobWriteOption.predefinedAcl( Storage.PredefinedAcl.PUBLIC_READ )
             )
           case GcsPublishFilePolicy.InheritedFromBucket =>
             gcsBucket.create(
               destination,
               new FileInputStream( src ),
-              getContentType( dest )
+              ContentTypes.forPath( dest.getPath )
             )
         }
         Option( l ).foreach( _.end( event ) )
@@ -109,17 +109,6 @@ class GcsIvyUrlHandler( gcsStorage: => Storage, gcsPublishFilePolicy: GcsPublish
       .getOrElse {
         GcsIvyUrlInfo( available = false, contentLength = 0, lastModified = 0 )
       }
-  }
-
-  private def getContentType( url: URL ): String = {
-    url.getPath.takeRight( 4 ).toLowerCase match {
-      case ".jar"  => "application/java-archive"
-      case ".xml"  => "application/xml"
-      case ".sha1" => "text/plain"
-      case ".md5"  => "text/plain"
-      case ".ivy"  => "application/xml"
-      case _       => "application/octet-stream"
-    }
   }
 
   private case class GcsIvyUrlInfo( available: Boolean, contentLength: Long, lastModified: Long )

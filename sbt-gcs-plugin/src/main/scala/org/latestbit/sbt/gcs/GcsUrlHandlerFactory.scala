@@ -22,9 +22,8 @@ import com.google.auth.Credentials
 import com.google.auth.oauth2.{ AccessToken, GoogleAuthUtils, GoogleCredentials, ServiceAccountCredentials }
 import com.google.common.collect.ImmutableList
 import com.google.cloud.storage.StorageOptions
-import org.apache.ivy.util.url.{ URLHandlerDispatcher, URLHandlerRegistry }
-import org.latestbit.sbt.gcs.artifactregistry.{ GcsArtifactRegistryIvyUrlHandler, GcsArtifactRegistryUrlHandler }
-import org.latestbit.sbt.gcs.gs.{ GcsIvyUrlHandler, GcsUrlHandler }
+import org.latestbit.sbt.gcs.artifactregistry.GcsArtifactRegistryUrlHandler
+import org.latestbit.sbt.gcs.gs.GcsUrlHandler
 import sbt.{ File, Logger }
 
 import java.net.{ URI, URL }
@@ -34,14 +33,13 @@ import scala.util.Try
 
 object GcsUrlHandlerFactory {
 
-  /** Registers gs:// and artifactregistry:// URL handlers unconditionally. Credentials are loaded lazily on the first
-    * actual network request.
+  /** Registers gs:// and artifactregistry:// URL handlers unconditionally and returns the clients for publishing.
+    * Credentials are loaded lazily on the first actual network request.
     */
   def install(
       googleCredentialsFile: Option[File],
-      googleCredentialsDisable: Boolean,
-      gcsPublishFilePolicy: GcsPublishFilePolicy
-  )( implicit logger: Logger ) = {
+      googleCredentialsDisable: Boolean
+  )( implicit logger: Logger ): GoogleCloudClients = {
     lazy val credentials: Option[ReloadingCredentials] =
       if ( googleCredentialsDisable ) {
         logger.debug( s"Google Application Default Credentials lookup is disabled" )
@@ -80,19 +78,7 @@ object GcsUrlHandlerFactory {
         }
     }
 
-    // Install gs:// handler for ivy
-    val dispatcher: URLHandlerDispatcher = URLHandlerRegistry.getDefault match {
-      case existingUrlHandlerDispatcher: URLHandlerDispatcher => existingUrlHandlerDispatcher
-      case otherKindOfDispatcher                              =>
-        logger.info( "Setting up Ivy URLHandlerDispatcher to handle gs:// and artifactregistry://" )
-        val dispatcher: URLHandlerDispatcher = new URLHandlerDispatcher()
-        dispatcher.setDefault( otherKindOfDispatcher )
-        URLHandlerRegistry.setDefault( dispatcher )
-        dispatcher
-    }
-
-    dispatcher.setDownloader( "gs", new GcsIvyUrlHandler( gcsStorage, gcsPublishFilePolicy ) )
-    dispatcher.setDownloader( "artifactregistry", new GcsArtifactRegistryIvyUrlHandler( googleHttpRequestFactory ) )
+    new GoogleCloudClients( gcsStorage, googleHttpRequestFactory )
   }
 
   private def loadGoogleCredentials(
