@@ -1,16 +1,16 @@
-organization := "org.latestbit"
+ThisBuild / organization := "org.latestbit"
 
-homepage := Some( url( "http://latestbit.com" ) )
+ThisBuild / homepage := Some( url( "http://latestbit.com" ) )
 
-licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
+ThisBuild / licenses += ( "Apache-2.0", url( "https://www.apache.org/licenses/LICENSE-2.0.html" ) )
 
-scalaVersion := "3.8.4"
+ThisBuild / scalaVersion := "3.8.4"
 
 lazy val sbtGcsPlaygroundToPublish = project
   .in( file( "playground-publish" ) )
   .settings(
     name               := "sbt-gcs-plugin-playground-publish",
-    version            := "0.0.7",
+    version            := "0.0.8-SNAPSHOT",
     crossScalaVersions := Nil,
     publishTo          := Some( "Custom Releases" at "gs://private-artifacts" ),
     logLevel           := Level.Debug
@@ -23,7 +23,7 @@ lazy val sbtGcsPlaygroundToResolve = project
     crossScalaVersions := Nil,
     resolvers += "Custom Releases" at "gs://private-artifacts",
     libraryDependencies ++= Seq(
-      "org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.7"
+      "org.latestbit" %% "sbt-gcs-plugin-playground-publish" % "0.0.8-SNAPSHOT"
     ),
     logLevel := Level.Debug
   )
@@ -32,7 +32,7 @@ lazy val sbtGcsArtifactRepositoryPlaygroundToPublish = project
   .in( file( "playground-publish-artifact-repository" ) )
   .settings(
     name               := "sbt-gcs-plugin-playground-artifact-publish",
-    version            := "0.0.26-SNAPSHOT",
+    version            := "0.0.28-SNAPSHOT",
     crossScalaVersions := Nil,
     publishTo          := Some(
       "Custom Releases" at "artifactregistry://europe-north1-maven.pkg.dev/latestbit/latestbit-artifacts-snapshots"
@@ -47,7 +47,7 @@ lazy val sbtGcsArtifactRepositoryPlaygroundToResolve = project
     crossScalaVersions := Nil,
     resolvers += "Custom Releases" at "artifactregistry://europe-north1-maven.pkg.dev/latestbit/latestbit-artifacts-snapshots",
     libraryDependencies ++= Seq(
-      "org.latestbit" %% "sbt-gcs-plugin-playground-artifact-publish" % "0.0.26-SNAPSHOT"
+      "org.latestbit" %% "sbt-gcs-plugin-playground-artifact-publish" % "0.0.28-SNAPSHOT"
     ),
     logLevel := Level.Debug
   )
