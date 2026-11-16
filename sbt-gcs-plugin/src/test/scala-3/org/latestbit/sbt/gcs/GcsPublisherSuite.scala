@@ -222,4 +222,21 @@ class GcsPublisherSuite extends munit.FunSuite {
     intercept[IOException]( publisher.publish( module, publishTo( "registry", overwrite = true ), Logger.Null ) )
     assertEquals( sbt.resolverNames.toList, Nil )
   }
+
+  stagingBase.test( "an Ivy pattern gs:// publish target is refused before anything is staged or uploaded" ) { base =>
+    val ivy = URLRepository(
+      "ivy",
+      Patterns()
+        .withIvyPatterns( Vector( "gs://artifacts/ivy/[organisation]/[module]/[revision]/ivy.xml" ) )
+        .withArtifactPatterns( Vector( "gs://artifacts/ivy/[organisation]/[module]/[revision]/[artifact].[ext]" ) )
+    )
+    val name = GcsIvyPatterns.resolverName( ivy ).getOrElse( fail( "the Ivy pattern gs:// resolver is not detected" ) )
+    val sbt  = new SbtPublisher( targetFor( MavenRepository( "registry", registryRoot ), base ) )
+    val publisher = Publisher( new GcsIvyPatternsPublisher( Publisher( sbt ), name ) )
+
+    intercept[IOException]( publisher.publish( module, publishTo( name, overwrite = true ), Logger.Null ) )
+    publisher.publish( module, publishTo( Resolver.mavenLocal.name, overwrite = true ), Logger.Null )
+
+    assertEquals( sbt.resolverNames.toList, List( Resolver.mavenLocal.name ) )
+  }
 }

@@ -23,6 +23,7 @@ import sbt.librarymanagement.{
   MakePomConfiguration,
   ModuleDescriptor,
   ModuleDescriptorConfiguration,
+  PatternsBasedRepository,
   PublishConfiguration,
   Publisher,
   PublisherInterface,
@@ -50,6 +51,41 @@ object GcsPublishTarget {
       GcsMavenRepository.parse( repository.root ).map( GcsPublishTarget( repository.name, _, stagingDir ) )
     case _ => None
   }
+}
+
+/** The resolvers that name a gs:// or artifactregistry:// repository by Ivy patterns. sbt 2 publishes any such
+  * repository to a local directory named after the URL, so a publish to one is refused instead.
+  */
+object GcsIvyPatterns {
+
+  def resolverName( resolver: Resolver ): Option[String] = resolver match {
+    case repository: PatternsBasedRepository
+        if ( repository.patterns.ivyPatterns ++ repository.patterns.artifactPatterns ).exists( isGcsUrl ) =>
+      Some( repository.name )
+    case _ => None
+  }
+
+  private def isGcsUrl( pattern: String ): Boolean =
+    pattern.startsWith( "gs://" ) || pattern.startsWith( "artifactregistry://" )
+}
+
+/** A publish to `resolverName` fails before anything is written or uploaded; every other publish is sbt's own. */
+final class GcsIvyPatternsPublisher( delegate: Publisher, resolverName: String ) extends PublisherInterface {
+
+  override def moduleDescriptor( moduleSetting: ModuleDescriptorConfiguration ): ModuleDescriptor =
+    delegate.moduleDescriptor( moduleSetting )
+
+  override def makePomFile( module: ModuleDescriptor, configuration: MakePomConfiguration, log: Logger ): File =
+    delegate.makePomFile( module, configuration, log )
+
+  override def publish( module: ModuleDescriptor, configuration: PublishConfiguration, log: Logger ): Unit =
+    if ( configuration.resolverName.contains( resolverName ) )
+      throw new IOException(
+        s"Unable to publish to $resolverName: sbt 2 cannot publish by Ivy patterns to gs:// or artifactregistry://. " +
+          """Use a Maven resolver instead, such as: "name" at "gs://bucket/path""""
+      )
+    else
+      delegate.publish( module, configuration, log )
 }
 
 /** The files at `locations` exist and the publish configuration does not overwrite them; nothing was uploaded. */

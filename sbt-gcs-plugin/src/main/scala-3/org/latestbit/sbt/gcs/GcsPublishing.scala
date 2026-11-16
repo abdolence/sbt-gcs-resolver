@@ -58,7 +58,9 @@ object GcsPublishing {
         case ( Some( publishTarget ), Some( clients ) ) =>
           Publisher( new GcsPublisher( sbtPublisher, publishTarget, clients, ( Global / gcsPublishFilePolicy ).value ) )
         case _ =>
-          sbtPublisher
+          publishTo.value
+            .flatMap( GcsIvyPatterns.resolverName )
+            .fold( sbtPublisher )( name => Publisher( new GcsIvyPatternsPublisher( sbtPublisher, name ) ) )
       }
     }
   )
