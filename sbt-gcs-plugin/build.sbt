@@ -52,7 +52,11 @@ publishTo := {
   }
 }
 
-credentials += Credentials( Path.userHome / ".sbt" / ".credentials" )
+// sbt 2 fails the release on a missing credentials file; without it, sbt reads SONATYPE_USERNAME/SONATYPE_PASSWORD.
+credentials ++= {
+  val credentialsFile = Path.userHome / ".sbt" / ".credentials"
+  if ( credentialsFile.exists ) Seq( Credentials( credentialsFile ) ) else Nil
+}
 
 sbtPluginPublishLegacyMavenStyle := false
 
